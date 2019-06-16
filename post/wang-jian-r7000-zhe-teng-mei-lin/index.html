@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>网件R7000刷入小宝梅林固件 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560703958950">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560704070532">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560703958950" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560704070532" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -104,10 +104,10 @@
 <p>在根据论坛的教程刷入「梅林过渡固件」后无限重启
 之后了解到可能是因为曾今刷过梅林后又刷回官方固件导致的</p>
 <h3 id="救砖">救砖</h3>
-<p>无限重启也不是办法，好在R7000足够顽强
-step1. LAN连接路由器
-step2. 把<code>nmrpflash</code>下下来，在对应目录执行<code>./nmrpflash -L</code> 查看对应的端口号
-step3. 执行<code>sudo ./nmrpflash -i en8 -f R7000-V1.0.0.96_1.0.15.chk</code></p>
+<p>无限重启也不是办法，好在R7000足够顽强</p>
+<p>step1. LAN连接路由器</p>
+<p>step2. 把<code>nmrpflash</code>下下来，在对应目录执行<code>./nmrpflash -L</code> 查看对应的端口号</p>
+<p>step3. 执行<code>sudo ./nmrpflash -i en8 -f R7000-V1.0.0.96_1.0.15.chk</code></p>
 <pre><code class="language-bash">sudo ./nmrpflash -i en8 -f R7000-V1.0.0.96_1.0.15.chk
 Advertising NMRP server on en8 ... \
 Received TFTP_UL_REQ while waiting for CONF_REQ!
@@ -125,8 +125,8 @@ Reboot your device now.
 <p>其中<code>en8</code>为step2中查询到的网卡</p>
 <p><code>R7000-V1.0.0.96_1.0.15.chk</code>是原厂固件</p>
 <p>⚠️<strong>执行nmrpflash可能会遇到下面几种情况</strong></p>
-<p><code>Timeout while waiting for TFTP_UL_REQ.</code> 紧接着马上再执行命令基本就成了
-<code>No response after 60 seconds. Bailing out</code> 路由器关了重新来吧，<strong>电源灯闪红的时候执行</strong></p>
+<p><code>Timeout while waiting for TFTP_UL_REQ.</code> 紧接着马上再执行命令基本就成了</p>
+<p><code>No response after 60 seconds. Bailing out</code> 路由器关了重新来吧，<strong>电源灯闪红的时候执行</strong></p>
 <p>时机很重要，在红灯闪的时候跑命令，不行就多敲几次。</p>
 <h3 id="dd固件过渡">DD固件过渡</h3>
 <p><a href="https://koolshare.cn/thread-81127-1-1.html">R7K回原厂后又无法刷梅林 重刷方法</a></p>
