@@ -1,0 +1,154 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Webpack注入内联样式及脚本 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Webpack注入内联样式及脚本
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-06-24 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/9IfyZcgbR" class="post-tag">
+                  # Webpack
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/webpack-zhu-ru-nei-lian-yang-shi-ji-jiao-ben.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>一般情况下，利用Webpack打包项目会生成一个HTML文件和一个script入口文件。
+在分chunk的时候也会为各个chunk生成不同的script文件，并注入到HTML文件中。</p>
+<p>然而因为业务上的需求，有时会一些很简单的活动页面，利用Webpack打包一个HTML单文件，扔到服务器上就能用，简单粗暴，更新的时候也只要更新一个文件就可以，不必将脚本、样式和HTML分别更新。</p>
+<h2 id="html-webpack-inline-source">html-webpack-inline-source</h2>
+<p><a href="https://www.npmjs.com/package/html-webpack-inline-source-plugin">html-webpack-inline-source-plugin</a>和HtmlWebpackPlugin插件配合，可以将打包生成的文件注入为行内样式和行内脚本。</p>
+<h2 id="使用">使用</h2>
+<p>通过npm安装html-webpack-inline-source
+<code>npm install --save-dev html-webpack-inline-source-plugin</code></p>
+<p>在Webpack的plugins中进行配置</p>
+<pre><code class="language-javascript">const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+
+// Webpack config
+plugins: [
+  new HtmlWebpackPlugin(),
+  new HtmlWebpackInlineSourcePlugin()
+]  
+</code></pre>
+<p>ennnnn其实上面上面这样配置插件不会做任何事情去注入行内脚本和样式, 需要在HtmlWebpackPlugin中告诉它哪些东西需要注入行内。</p>
+<pre><code class="language-javascript">plugins: [
+  new HtmlWebpackPlugin({
+        inlineSource: '.(js|css)$' // embed all javascript and css inline
+    }),
+  new HtmlWebpackInlineSourcePlugin()
+] 
+</code></pre>
+<p>这样在我们最后build的时候index.html中就会包含行内样式和脚本。</p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/centos7_-tong-guo-rpm-an-zhuang-python3">
+              <h3 class="post-title">
+                CentOs7_通过RPM安装Python3
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,240 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CentOS_7部署Nginx服务 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              CentOS_7部署Nginx服务
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-06-03 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/FDqyQV81Y" class="post-tag">
+                  # Nginx
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/mCdQTi3jJ" class="post-tag">
+                  # CentOS7
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/centos_7-bu-shu-nginx-fu-wu.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>没完整的建过站，于是把闲置的搬瓦工用起来。</p>
+<h2 id="安装nginx">安装Nginx</h2>
+<p>用终端连接VPS
+<code>ssh root@ip_address -p port</code>
+换成对应的ip地址和端口，输入正确密码后就成功连接。</p>
+<p><code>yum install nginx</code> 安装nginx失败，提示：没有可用软件包 nginx</p>
+<p>源里没有那就直接从官网下好了</p>
+<p><code>rpm -ivh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm</code></p>
+<p>再安装就成功了。</p>
+<h2 id="启动nginx">启动Nginx</h2>
+<p><code>systemctl start nginx</code></p>
+<p>如果启动成功就可以通过直接访问IP地址看到喜闻乐见的 <strong>Welcome to nginx!</strong></p>
+<h2 id="openssl生成csr文件申请ssl证书">OpenSSL生成CSR文件申请SSL证书</h2>
+<p>DogDaddy上注册了一个<code>.app</code>的域名，还送了一年证书，也正好用起来。</p>
+<p><code>openssl req -new -nodes -sha256 -newkey rsa:2048 -keyout myprivate.key -out mydomain.csr</code></p>
+<p>new: 生成一个新的CSR
+nodes: 私钥文件不被加密
+sha256: 摘要算法
+keyout: 生成私钥,
+newkey rsa:2048: 指定私钥类型和长
+mydomain.csr: 最后生成的文件名</p>
+<p>执行上面命令后会要求输入以下内容</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Country Name</td>
+<td>国家代码</td>
+<td>CN</td>
+</tr>
+<tr>
+<td>State or Province Name</td>
+<td>省份</td>
+<td>Beijing</td>
+</tr>
+<tr>
+<td>Locality Name</td>
+<td>城市</td>
+<td>Beijing</td>
+</tr>
+<tr>
+<td>Organization Name</td>
+<td>组织名称</td>
+<td></td>
+</tr>
+<tr>
+<td>Organization Unit Name</td>
+<td>部门名称</td>
+<td>IT</td>
+</tr>
+<tr>
+<td>Common Name</td>
+<td>证书申请域名</td>
+<td>example.app</td>
+</tr>
+<tr>
+<td>A challenge password</td>
+<td>某个密码</td>
+<td>可不填</td>
+</tr>
+<tr>
+<td>Email Address</td>
+<td>邮件</td>
+<td>我没填</td>
+</tr>
+</tbody>
+</table>
+<p>最后在命令所在目录会生成一个<code>myprivate.key</code> 和一个 <code>mydomain.csr</code>，分别为私钥和CSR申请文件。</p>
+<p>🐶爹添加证书的时候就把CSR文件里的内容拷进去，申请一下就等着邮件通知签发证书。</p>
+<h2 id="安装证书">安装证书</h2>
+<p><a href="https://www.secureserver.net/help/article/27192?prog_id=504762">NGINX on CentOS 7: Install a Certificate</a></p>
+<h3 id="通过scp拷贝文件至vps">通过scp拷贝文件至vps</h3>
+<p>基本格式为：scp -P [端口号] [源文件路径] root@ip_address:[目标路径]</p>
+<p><strong>-P一定要大写！</strong> 默认端口可省略 -P [端口号]</p>
+<h3 id="乌龙">乌龙</h3>
+<p>因为我注册了个<code>.app</code>后缀的域名，证书下载下来是<code>domain.app</code>被Mac识别成APP了，要显示包内容才能看到里面两个<code>.crt</code>文件。</p>
+<h3 id="编辑配置文件">编辑配置文件</h3>
+<pre><code class="language-bash">[root@host /]# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+</code></pre>
+<p><code>/etc/nginx/nginx.conf</code>就是配置文件所在的目录</p>
+<pre><code class="language-yaml">http {
+    server {
+            listen 80;
+            server_name coolexample.com;
+            return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+
+        server_name coolexample.com;
+        ssl_certificate     /etc/nginx/ssl/coolexample.crt;
+        ssl_certificate_key /etc/nginx/ssl/coolexample.key;
+
+        root /usr/share/nginx/coolexample.com/;
+        index index.php  index.html index.htm;
+
+    }
+}
+</code></pre>
+<p>在配置文件中加入对应的配置~</p>
+<p><code>root</code>是对应站点的跟目录，起初没写。导致使用https访问会404</p>
+<p><code>sudo service nginx restart</code>重启服务后应该可以生效了，如果重启失败可以通过<code>nginx -t</code>检查配置文件是否有问题</p>
+<p>愉悦~</p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/webpack-xue-xi-bi-ji-er">
+              <h3 class="post-title">
+                Webpack学习笔记二
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

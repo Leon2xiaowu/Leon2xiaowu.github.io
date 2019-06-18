@@ -1,0 +1,173 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WebGL渲染透明视频 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              WebGL渲染透明视频
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-09-14 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/AhBYQz1_9" class="post-tag">
+                  # WebGL
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/webgl-xuan-ran-tou-ming-shi-pin.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>WebGL也好OpenGL也好都是挺复杂的东西, 上回<a href="https://blog.normaldev.app/2018/08/25/WebGL%E5%85%A5%E9%97%A8-4/">Part4</a>渲染的透明图片也比较糙,.</p>
+<p>本来这次了解WebGL的目的是为了某个类似于在地图上呈现天气那种效果的需求, 最终目的是为了实现带有Alpha通道的视频效果, 这次通过这样一个DEMO也大致的实现了, 在<code>Chrome 69.0.3497.92</code>以及<code>iOS 12 GM</code>上的Safari和微信内置浏览器下测试通过.</p>
+<p>主要是以下几点</p>
+<ol>
+<li>开启混合Blend</li>
+<li>设置正确的混合方式</li>
+<li>合适的视频素材</li>
+</ol>
+<h3 id="开启混合">开启混合</h3>
+<pre><code class="language-javascript">// ...省略gl的获取步骤
+gl.enable(gl.BLEND);
+</code></pre>
+<h3 id="合适的混合方式">合适的混合方式</h3>
+<pre><code class="language-javascript">gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+</code></pre>
+<h3 id="片元着色器中-将取样器的内容混合">片元着色器中, 将取样器的内容混合.</h3>
+<pre><code class="language-javascript">const FSHADER_SOURCE = `
+  #ifdef GL_ES
+  precision mediump float;
+  #endif
+
+  uniform sampler2D uSampler;
+  uniform sampler2D uSampler_2;
+
+  varying vec2 vTexCoord;
+  varying vec2 vTexCoord2;
+  void main() {
+    vec4 vTexture1 = texture2D(uSampler, vTexCoord);
+    vec4 vTexture2 = texture2D(uSampler_2, vTexCoord2);
+    gl_FragColor = vec4(vTexture1.rgb, vTexture2.r);
+    // gl_FragColor = vTexture1 * vTexture2;
+  }
+`
+</code></pre>
+<p>这里我用了一个固定的遮罩图片,来确定透明的部分(黑色的).</p>
+<p>实际上, 可以将<strong>源视频和遮罩层视频拼合, 放在同一个视频当中,保证每次混合获取到的都是同一帧</strong></p>
+<h3 id="效果">效果</h3>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fv9i40bzyxg20t21684qq.gif" alt="透明视频效果图"></p>
+<p>DEMO没有放在线上, 感兴趣的自己把代码下下来放在服务器环境下,访问 <code>transparent_video</code>文件夹好了.</p>
+<p><a href="https://share.weiyun.com/5mmnGZ5">代码地址</a></p>
+<h3 id="参考文章">参考文章</h3>
+<p>感谢以下大佬的文章让我实现这个效果, 下面的文章讲解的比较细致,值得一看.</p>
+<p><a href="http://dopro.io/animation-solution-alpha-video.html">精准光影动效解决之道-透明视频</a></p>
+<p><a href="http://www.jiazhengblog.com/blog/2017/01/04/2989/">WebGL绘制详解之七：Blend</a></p>
+<p><a href="https://webglfundamentals.org/webgl/lessons/zh_cn/webgl-and-alpha.html">WebGL 和阿尔法通道</a></p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part4">
+              <h3 class="post-title">
+                WebGL入门-Part4
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

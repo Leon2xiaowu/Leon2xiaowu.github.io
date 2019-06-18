@@ -1,0 +1,181 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WebGL入门-Part1 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              WebGL入门-Part1
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-08-17 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/AhBYQz1_9" class="post-tag">
+                  # WebGL
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/webgl-ru-men-part1.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <blockquote>
+<p>WebGL是一项用来在网页上绘制和渲染复杂三维图形(3D图形)，并允许用户与之进行交互的技术。</p>
+</blockquote>
+<h2 id="概述">概述</h2>
+<p>在个人计算机上使用最广泛的两种三维图形渲染技术是微软的Direct3D和OpenGL。</p>
+<p>WebGL技术规范继承自免费和开源的OpenGL标准，某种意义上，WebGL就是
+&quot;Web版的OpenGL&quot;。</p>
+<p>OpenGL、OpenGL ES各版本和WebGL的关系</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud2af28yej20w80b248i.jpg" alt="OpenGL、OpenGL ES各版本和WebGL的关系"></p>
+<p>WebGL不仅仅包含Javascript还需要引入着色器语言 GLSL ES。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud2grgii2j20u20ca47v.jpg" alt="页面结构对比"></p>
+<p>通过阅读《WebGL编程指南》进行入门是一个不错的选择。</p>
+<h2 id="概念">概念</h2>
+<p>在用WebGL绘制第一个图形前呢，先简单的了解一些概念，方便我们后面对代码的理解。</p>
+<h3 id="着色器">着色器</h3>
+<p>使用WebGL绘图就必须使用着色器，在代码中着色器是以字符串形式「嵌入」在JavaScript中的，在这其中需要用到两种着色器，着色器使用**<code>GLSL ES</code>**语言编写，有点类似于C语言。</p>
+<ul>
+<li>
+<p>顶点着色器</p>
+<p>顾名思义，用来描述顶点特性的程序。举个栗子，顶点可以是二维图形或三维图形的端点或交点，三角形的三个就属于顶点。</p>
+</li>
+<li>
+<p>片元着色器</p>
+<p>对逐个片元进行一一处理的程序，定义如何处理WebGL程序的每一个片元，可以把片元理解为像素。片元着色器可以进行一些牛B的特效处理、比如光照之类的。</p>
+</li>
+</ul>
+<h3 id="webgl坐标系">WebGL坐标系</h3>
+<p>WebGL使用的是三维坐标系，X（水平正方向向右）、Y（垂直，正方向向上）、Z（垂直于屏幕，正方向冲向外，也就是和观察者视线相反）轴。</p>
+<p>也被称为右手坐标系，然鹅实际上并不是，现在就这么认为把。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud31ukxqhj20mo0k6djs.jpg" alt="坐标系"></p>
+<h3 id="canvas和webgl坐标系的对应关系">Canvas和WebGL坐标系的对应关系</h3>
+<p>WebGL的绘制也是基于Canvas绘制的嘛，三维坐标和二维坐标之间也存在一个对应的关系。</p>
+<p>坐标的最大为1、最小为-1；原点位于中心位置。</p>
+<ul>
+<li>Canvas中心点：(0.0, 0.0, 0.0);</li>
+</ul>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud368984tj20he0d8aes.jpg" alt="Canvas和WebGL坐标对应关系"></p>
+<h3 id="canvas与webgl坐标的相互转换">Canvas与WebGL坐标的相互转换</h3>
+<p>假设鼠标在Canvas上点哪里就要在对应位置绘制内容，可以这样去转换坐标。</p>
+<pre><code class="language-javascript">canvas.addEventListener('mousedown', (evt) =&gt; {
+  // rect 是一个具有四个属性left、top、right、bottom的DOMRect对象
+  // 除了width和 height、四个坐标均是DOM边界相对于视窗左上角
+  const rect = evt.target.getBoundingClientRect();
+  // 原点位于中心，宽高分别除2
+  const height = canvas.height / 2;
+  const width = canvas.width / 2;
+
+  const x = ((evt.clientX - rect.left) - width) / width;
+  const y = (height - (evt.clientY - rect.top)) / height;
+})
+</code></pre>
+<p>在了解这些基本概念后，我们就可以着手使用WebGL绘制一些内容啦。</p>
+<p><a href="https://blog.normaldev.app/2018/08/18/WebGL%E5%85%A5%E9%97%A8-2/">To Be Continue ✍️绘制一个点&gt;&gt;&gt;</a></p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/pd-xu-ni-ji-da-jian-centos-7-huan-jing">
+              <h3 class="post-title">
+                PD虚拟机搭建CentOS-7环境
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,400 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Webpack学习笔记一 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Webpack学习笔记一
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2017-02-13 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/9IfyZcgbR" class="post-tag">
+                  # Webpack
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/webpack-xue-xi-bi-ji-yi.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <blockquote>
+<p>按照webpack-demos的顺序进行了学习，结合自己的理解简单的翻译了一下，食用原repository更佳,<a href="https://github.com/ruanyf/webpack-demos">点我看原repo,给作者个star</a></p>
+</blockquote>
+<hr>
+<h3 id="what-is-webpack">What is Webpack</h3>
+<p>Webpack是一个前端打包工具，能够将模块和依赖进行整合输出。</p>
+<p>Webpack的配置文件是webpack.config.js</p>
+<pre><code class="language-javascript">module.exports = {
+  entry: &quot;entryFileUrl&quot;,
+  output: {
+    filename: &quot;outputFileUrl&quot;
+  }
+  //.....
+}
+</code></pre>
+<p>当你游了配置文件后，就可以使用webpack命令进行编译，一些基本的命令行指令是你需要知道</p>
+<ul>
+<li>webpack  在开发环境下执行一次编译</li>
+<li>webpack -p  在生产环境下执行一次编译，对源码进行压缩混淆</li>
+<li>webpack --watch  对程序进行监听并持续打包编译</li>
+<li>webpack -d  打包时生成map映射文件</li>
+<li>webpack --colors  更美观？</li>
+</ul>
+<p>你也可以在package.json配置文件中的“scripts”进行配置</p>
+<pre><code class="language-json">  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;webpack-dev-server&quot;,
+    &quot;deploy&quot;: &quot;NODE_ENV=production webpack -p&quot;
+  },
+</code></pre>
+<h3 id="entry-file-and-build">Entry file and build</h3>
+<p>entry告诉webpack根据哪一个文件进行打包，output则表示打包编译后输出文件的目录，for example</p>
+<pre><code class="language-javascript"> module.exports = {
+   entry: &quot;./main.js&quot;,
+   output: {
+     filename: &quot;build.js&quot;
+   }
+ }
+</code></pre>
+<p>main.js就是entry file，build.js就是经过打包后输出的文件。</p>
+<h3 id="多入口文件">多入口文件</h3>
+<p>Webpack允许多入口文件的配置，这可以用于多页面应用中。
+example</p>
+<pre><code class="language-javascript">  module.exports = {
+    entry: {
+      &quot;build1&quot;: './main1.js',
+      &quot;build2&quot;: './main2.js'
+    },
+    output: {
+      filename: '[name].js'
+    }
+  }
+</code></pre>
+<p>entry由字符串变成对象，并在其中添加[编译名的文件名]:[入口文件Url]组成的键值对；
+output由指定的文件名变成[name].js，根据entry指定的name来打包编译。</p>
+<h3 id="loaders">Loaders</h3>
+<p>Loaders也叫加载器，它能够为你的应用对源文件做进一步的处理。</p>
+<h4 id="babel-loader">Babel-loader</h4>
+<p>打个比方，<a href="https://github.com/babel/babel-loader">Babel-loader</a>能够将JSX/Es6转换成浏览器能够识别的js文件。</p>
+<pre><code class="language-javascript">  module.exports = {
+    entry: &quot;./main.js&quot;,
+    output: {
+      filename: &quot;build.js&quot;
+    },
+    module: {
+      Loaders: [
+        // ===Babel加载器===begin
+        {
+          test: /\.js$/,
+          exclude: /(node_modules|bower_components)/,
+          loader: 'babel-loader',
+          query: {
+            presets: ['es2015']
+          }
+        }
+        //===end
+      ]
+    }
+  }
+</code></pre>
+<h4 id="css-loader">Css-loader</h4>
+<p>在js中有时需要加载css样式表文件，Css-loader可以胜任这项工作。</p>
+<pre><code class="language-javascript">module.exports = {
+  entry: './main.js',
+  output: {
+    filename: 'bundle.js'
+  },
+  module: {
+    loaders:[
+      { test: /\.css$/, loader: 'style-loader!css-loader' },
+    ]
+  }
+};
+</code></pre>
+<h4 id="image-loader">Image-loader</h4>
+<p>在js中引用img文件</p>
+<pre><code class="language-javascript">//..省略其他部分
+loaders:[
+  { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' }
+]
+</code></pre>
+<p>url-loader会将图片进行转换，如果图片小于8192bytes，将会转换成Base64的Data URL；反过来，就转换成正常的路径。
+假设有两张一大一小的图片，第一张小于8192bytes，第二张则大于。那么两者会被换成这样：</p>
+<pre><code class="language-html">&lt;!-- 小图转换成Base64 --&gt;
+&lt;img src=&quot;data:image/png;base64,iVBOR...uQmCC&quot;&gt;  
+&lt;img src=&quot;4853ca667a2b8b8844eb2693ac1b2578.png&quot;&gt;
+</code></pre>
+<h4 id="css-module">Css Module</h4>
+<p>css-loader?modules 能够开启加载的Css模块中的属性的作用域。
+也就是说你导入的css模块中的属性默认是本地的、局部的，你能选择使用:global(...)将选择器提升为全局。<a href="https://css-modules.github.io/webpack-demo/">详细</a>
+index.heml</p>
+<pre><code class="language-html">&lt;html&gt;
+&lt;body&gt;
+  &lt;h1 class=&quot;h1&quot;&gt;Hello World&lt;/h1&gt;
+  &lt;h2 class=&quot;h2&quot;&gt;Hello Webpack&lt;/h2&gt;
+  &lt;div id=&quot;example&quot;&gt;&lt;/div&gt;
+  &lt;script src=&quot;./bundle.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>app.css</p>
+<pre><code class="language-css">.h1 {
+  color:red;
+}
+
+:global(.h2) {
+  color: blue;
+}
+</code></pre>
+<p>main.JSX</p>
+<pre><code class="language-javascript">var React = require('react');
+var ReactDOM = require('react-dom');
+var style = require('./app.css');
+
+ReactDOM.render(
+  &lt;div&gt;
+    &lt;h1 className={style.h1}&gt;Hello World&lt;/h1&gt;
+    &lt;h2 className=&quot;h2&quot;&gt;Hello Webpack&lt;/h2&gt;
+  &lt;/div&gt;,
+  document.getElementById('example')
+);
+</code></pre>
+<p>webpack.config.js</p>
+<pre><code class="language-javascript">module.exports = {
+  entry: './main.jsx',
+  output: {
+    filename: 'bundle.js'
+  },
+  module: {
+    loaders:[
+      {
+        test: /\.js[x]?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        query: {
+          presets: ['es2015', 'react']
+        }
+      },
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader?modules'  //注意⚠️ ?modules
+      }
+    ]
+  }
+};
+</code></pre>
+<p>第一个h1不会有任何变化，因为没有定义全局的.h1选择器；
+第二个h1为红色，由于.h1的作用范围为本地，所以style.h1能够正确找到选择器；
+h2均为蓝色，其是通过:global(.h2){...}定义的选择器，所以作用范围为全部。
+{%asset_img css-module.png 运行结果%}</p>
+<h3 id="plugin">Plugin</h3>
+<h4 id="uglifyjs-plugin">UglifyJs Plugin</h4>
+<p>Webpack 有它自己的插件用来扩展方法。比如<a href="http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin">UglifyJs plugin</a>会最小化的输出编译过后的js</p>
+<pre><code class="language-javascript">var webpack = require('webpack');
+var uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
+module.exports = {
+  entry: './main.js',
+  output: {
+    filename: 'bundle.js'
+  },
+  plugins: [
+    new uglifyJsPlugin({
+      compress: {
+        warnings: false
+      }
+    })
+  ]
+};
+</code></pre>
+<p>打包编译后，bundle.js会被最小化输出。类似于</p>
+<pre><code class="language-javascript">var o=&quot;Hello&quot;;o+=&quot; World&quot;,document.write(&quot;&lt;h1&gt;&quot;+o+&quot;&lt;/h1&gt;&quot;)
+</code></pre>
+<h4 id="html-webpack-plugin-and-open-browser-webpack-plugin">HTML Webpack Plugin and Open Browser Webpack Plugin</h4>
+<p>webpack还可以使用第三方的插件。
+HTML Webpack Plugin 能够为你自动生成一个index.html，
+Open Browser Webpack Plugin能够在webpack服务运行的时候打开一个新的浏览器标签并载入页面</p>
+<pre><code class="language-javascript">var HtmlwebpackPlugin = require('html-webpack-plugin');
+var OpenBrowserPlugin = require('open-browser-webpack-plugin');
+
+module.exports = {
+  entry: './main.js',
+  output: {
+    filename: 'bundle.js'
+  },
+  plugins: [
+    new HtmlwebpackPlugin({
+      title: &quot;webpack-demo&quot;,
+      filename: &quot;index.html&quot;
+    }),
+    new OpenBrowserPlugin({
+      url: &quot;http://localhost:8080&quot;
+    })
+  ]
+};
+</code></pre>
+<p>运行webpack-dev-save，现在你不需要自己创建index.html和打开浏览器了。👍</p>
+<h4 id="environment-flags">Environment flags</h4>
+<p>你还能利用环境标志，让部分代码只能运行在开发环境中
+main.js</p>
+<pre><code class="language-javascript">document.write('&lt;h1&gt;Environment flags&lt;/h1&gt;')
+if (__DEV__){
+  document.write(new Date());
+}
+</code></pre>
+<p>webpack.config.js</p>
+<pre><code class="language-javascript">var webpack = require('webpack');
+
+var devFlagPlugin = new webpack.DefinePlugin({
+  __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
+});
+
+module.exports = {
+  entry: './main.js',
+  output: {
+    filename: 'bundle.js'
+  },
+  plugins: [devFlagPlugin]
+};
+</code></pre>
+<p>现在运行webpack</p>
+<pre><code># Linux $ Mac
+$ env DEBUG=true webpack-dev-server
+
+# Windows
+$ set DEBUG=true
+$ webpack-dev-server
+</code></pre>
+<p>{%asset_img environment.png 运行结果%}</p>
+<h3 id="code-splitting">Code splitting</h3>
+<p>在大型项目中，将所有的代码放在一个文件中是极其没有效率的一件事件。webpack允许将其分割成许多不同的块，并按照需求进行加载。
+首先，用require.ensure定义一个分割点</p>
+<pre><code class="language-javascript">require.ensure(['./a'],function(require){
+  vat content  = require('./a')
+  document.open()
+  document.write('&lt;h1&gt;Environment flags&lt;/h1&gt;')
+  document.colors()
+})
+</code></pre>
+<p>require.ensure 告诉webpack &quot;a.js&quot;应该被分开加载并打包为一个文件。
+另外一种方法是使用<a href="https://www.npmjs.com/package/bundle-loader">bundle-loader</a></p>
+<pre><code class="language-javascript">// main.js
+
+// Now a.js is requested, it will be bundled into another file
+var load = require('bundle-loader!./a.js');
+
+// To wait until a.js is available (and get the exports)
+//  you need to async wait for it.
+load(function(file) {
+  document.open();
+  document.write('&lt;h1&gt;' + file + '&lt;/h1&gt;');
+  document.close();
+});
+</code></pre>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/mian-xiang-dui-xiang-de-cheng-xu-she-ji-javascript-ji-cheng">
+              <h3 class="post-title">
+                JavaScript面向对象的程序设计-Javascript继承
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

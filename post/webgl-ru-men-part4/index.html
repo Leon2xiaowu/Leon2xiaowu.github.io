@@ -1,0 +1,257 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WebGL入门-Part4 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              WebGL入门-Part4
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-08-25 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/AhBYQz1_9" class="post-tag">
+                  # WebGL
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/webgl-ru-men-part4.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>WebGL和Canvas一样也可以绘制图片（视频），WebGL中称为纹理。</p>
+<h2 id="坐标">坐标</h2>
+<p>在开始给图形贴上纹理前，来了解一下几个坐标的概念。</p>
+<h3 id="纹理坐标">纹理坐标</h3>
+<p>纹理坐标就是纹理图像的坐标，为一个二维坐标，WebGL使用s和t命名纹理坐标已区别x，y坐标。</p>
+<p>左下角为<strong>原点</strong>， 无论图像尺寸是多少，右上角的顶点始终为 (1, 1)。</p>
+<p>不同于图片坐标系，图片坐标系原点在左上角，右下角为(1, 1).</p>
+<p>通过纹理坐标映射到顶点告诉WebGL 要将纹理的哪个部分绘制到WebGL中的哪个部分。</p>
+<p>🌰右下的图表示了将整幅纹理映射到整个WebGL的画布上。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fulsxnyenbj211y0dk76f.jpg" alt="纹理坐标"></p>
+<h2 id="着色器">着色器</h2>
+<p>纹理图像需要顶点着色器分别接收纹理坐标和定点坐标，纹理坐标将通过<code>varying</code>传递给片元着色器。</p>
+<p>片元着色器中需要定义一种特殊的、专门用来处理纹理对象的数据类型。</p>
+<ul>
+<li>sampler2D   // 绑定到gl.TEXTURE_2D上的纹理数据类型</li>
+<li>samplerCube   // 绑定到gl.TEXTURE_CUBE_MAP上的纹理数据类型</li>
+</ul>
+<pre><code class="language-javascript">// 顶点着色器
+const VSHADER_SOURCE = `
+  attribute vec4 aPosition;
+  attribute vec2 aTexCoord;
+
+  varying vec2 vTexCoord;
+
+  void main() {
+    gl_Position = aPosition;
+    vTexCoord = aTexCoord;
+  }
+`;
+// 片元着色器
+const FSHADER_SOURCE = `
+  #ifdef GL_ES
+  precision mediump float;
+  #endif
+
+  uniform sampler2D uSampler;
+
+  varying vec2 vTexCoord;
+  void main() {
+    vec4 vTexture = texture2D(uSampler, vTexCoord);
+    gl_FragColor = vTexture;
+  }
+`;
+</code></pre>
+<h2 id="传递坐标参数">传递坐标参数</h2>
+<p>在着色器中分别定义了<code>aPosition</code>接收顶点坐标, <code>aTexCoord</code>接收纹理坐标, <code>uSampler</code>接收纹理对象.</p>
+<p>现在来把顶点和纹理坐标传给着色器</p>
+<p>定义坐标数据</p>
+<pre><code class="language-javascript">const vertices = new Float32Array([
+    //   顶点    纹理坐标
+    -0.5,  0.5, 0.0, 1.0,
+    -0.5, -0.5, 0.0, 0.0,
+     0.5, -0.5, 1.0, 0.0,
+     0.5,  0.5, 1.0, 1.0,
+])
+</code></pre>
+<p>分配缓冲区数据给attribute并开启, 省略创建缓冲区等步骤...</p>
+<pre><code class="language-javascript">// 分配顶点数据
+gl.vertexAttribPointer(aPosition, 2, gl.FLOATS, false, 4, 0);
+// 分配纹理坐标数据
+gl.vertexAttribPointer(aTexCoord, 2, gl.FLOATS, false, 4, 2);
+// 开启
+gl.enableVertexAttribArray(aPosition);
+gl.enableVertexAttribArray(aTexCoord);
+</code></pre>
+<h2 id="配置和加载纹理">配置和加载纹理</h2>
+<h3 id="创建纹理对象">创建纹理对象</h3>
+<p><code>createTexture()</code>创建一个纹理对象;</p>
+<p><code>deleteTexture()</code>删除一个纹理对象.</p>
+<pre><code class="language-javascript">// 创建纹理对象
+const texture = gl.createTexture();
+// ...
+const uSampler = gl.getUniformLocation(gl.program, 'uSampler');
+</code></pre>
+<h3 id="为webgl配置纹理">为WebGL配置纹理</h3>
+<p>因为图片异步加载的原因, 配置纹理对象会放在图片<code>onload</code>回调函数中执行.</p>
+<pre><code class="language-javascript">const img = new Image();
+img.onload = () =&gt; {
+  // ... 执行纹理配置  
+};
+img.src = 'https://..img url';
+// 如果纹理图片不在当前域名下, 图片和视频遵循同源策略是不允许绘制的
+</code></pre>
+<h3 id="图像y轴反转">图像Y轴反转</h3>
+<p>由于图像坐标的Y轴(正方向乡下)和纹理坐标的Y轴(正方向向上) 是相反的, 需要通过<code>gl.pixelStorei(pname, value)</code>将纹理图像进行Y轴反转.</p>
+<p>反转方法接收两个参数, pname表示操作的类型, 值为以下两者之一:</p>
+<ul>
+<li>gl.UNPACK_FLIP_Y_WEBGL   对图像进行Y轴反转, 默认false</li>
+<li>gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL 将图像RBG颜色值每个分量乘A, 默认false</li>
+</ul>
+<p>value 接收一个整数已表示true (非0) or false (0)</p>
+<h3 id="激活纹理单元">激活纹理单元</h3>
+<p>WebGL通过纹理单元的机制来同时使用多个纹理.</p>
+<p>每个纹理单元有一个唯一的单元编号, 来管理一张纹理图像.及时只使用一张纹理图像也要指定一个纹理单元.</p>
+<p>支持的纹理单元个数取决于硬件和浏览器的WebGL实现,默认情况下至少支持8个纹理单元.</p>
+<p><code>gl.TEXTRUE0</code>, <code>gl.TEXTURE1...7</code>个表示一个纹理单元.</p>
+<p><code>gl.activeTexture(gl.TEXTURE0);</code> 通过activeTexture方法来激活指定的纹理单元.</p>
+<h3 id="绑定纹理对象">绑定纹理对象</h3>
+<p>和绑定缓冲区对象一样,纹理对象也需要进行绑定后才能操作.</p>
+<p><code>gl.bindTexture(gl.TEXTURE_2D, texture);</code>绑定创建好的纹理,</p>
+<p>第一个参数有两个选择</p>
+<ul>
+<li>gl.TEXTURE_2D 二维纹理</li>
+<li>gl.TEXTURE_CUBE_MAP 立方体纹理</li>
+</ul>
+<h3 id="配置纹理对象的参数">配置纹理对象的参数</h3>
+<p>通过<code>texParameteri(target, pname, param)</code>配置纹理对象的参数, 来设置纹理图像映射到图形上的具体方式: 比如填充的方式等等...</p>
+<p>target 和绑定纹理对象一样,有二维纹理和立方体纹理两个值.</p>
+<p>pname 分别有四个值, 对应在填充纹理时不懂得处理方式</p>
+<p>param为其对应的值, 每个pname均设有默认值</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1funew5ksahj20xy0a8n1v.jpg" alt="pname的取值"></p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1funeww0t88j20x40gqgti.jpg" alt=""></p>
+<h3 id="将纹理图像分配给纹理对象">将纹理图像分配给纹理对象</h3>
+<p>使用 <code>textImage2D(target, level, internalformat, format, type, image)</code>方法将纹理图像分配给纹理对象</p>
+<ul>
+<li>target 与之前一样,二维和立方体两个选项</li>
+<li>level 为金字塔纹理准备的参数, 传入0即可</li>
+<li>internalformat 图像的内部格式, 有 RBG, RGBA等等..</li>
+<li>format 纹理数据的格式, 要求和internalformat相同</li>
+<li>type 纹理数据的数据格式, 有<code>UNSIGNED_BYTE</code> 无符号整形和其他一些格式</li>
+<li>image 包含纹理图像的Image对象</li>
+</ul>
+<h3 id="传递纹理单元给片元着色器">传递纹理单元给片元着色器</h3>
+<p><code>gl.uniform1i(uSampler, 0)</code></p>
+<p>uSampler为uniform变量的地址,</p>
+<p>0 表示之前开启的第0号纹理单元</p>
+<h3 id="绘制">绘制</h3>
+<p><code>gl.drawArrays(gl.TRIANGLE_STRIP, 0, n)</code> 已<code>TRIANGLE_STRIP</code>的形式绘制出纹理.</p>
+<p>💡<a href="https://jsbin.com/jequfaxive/2/edit?html,js,output">DEMO 遮罩实现图像纹理透明</a></p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part3">
+              <h3 class="post-title">
+                WebGL入门-Part3
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

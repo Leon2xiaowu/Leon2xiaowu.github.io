@@ -1,0 +1,242 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JavaScript面向对象的程序设计-类的创建 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              JavaScript面向对象的程序设计-类的创建
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2017-02-04 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/javascript-mian-xiang-dui-xiang-de-cheng-xu-she-ji-lei-de-chuang-jian.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <blockquote>
+<p>面向对象的编程语言都有一个特征，就是拥有类的概念，通过类可以创建任意多个具有相同属性和方法的对象。然而众所周知，ECMAScript中没有类的概念，因此它的对象也与其他基于类的语言中的对象有所不同。</p>
+</blockquote>
+<p>JavaScript中用对象模拟其他语言中的类，有下面几种模式对类进行创建。</p>
+<h2 id="构造函数模式">构造函数模式</h2>
+<p>ECMAScript中的构造函数能够创建特定类型的对象，像Array，Object这样的原生构造函数，我们也可以创建自定义的构造函数。</p>
+<pre><code class="language-javascript">  function Person(name, age){
+    this.name = name
+    this.age = age
+    this.sayName = function() {
+      alert(this.name)
+    }
+  }
+
+</code></pre>
+<p>Person构造函数就相当于Person类的构造函数一样的存在，当需要创建Person实例时，需要使用new操作符，实例生成步骤如下。</p>
+<ol>
+<li>创建一个新的对象</li>
+<li>将构造函数的作用域赋给新对象，this指向新对象</li>
+<li>执行构造函数中的代码，为新对象添加属性方法等</li>
+<li>返回新对象</li>
+</ol>
+<p>构造函数的问题: 上个栗子中有一个sayName的方法，每new一个Person都会产生一个新的实例，一个新的sayName方法。创建两个功能相同的方法实在是没有什么必要，为此就有了下面一种方法&quot;原型模式&quot;</p>
+<pre><code class="language-javascript">  let person1 = new Person()
+  let person2 = new Person()
+  console.log(person1.sayName === person2.sayName) //false
+</code></pre>
+<h2 id="原型模式">原型模式</h2>
+<p>我们每创建一个函数都会有一个prototype(原型)属性，这属性是一个指针，指向一个对象，这个对象的作用就是包含由特定类型的所有实例共享的属性和方法。使用原型的好处是可以让所有实例共享构造函数的属性和方法，换句话说就是将构造函数模式中定义在构造函数内的属性和方法定义在构造函数的prototype上。</p>
+<pre><code class="language-javascript">function Person(){}
+Person.prototype.name = &quot;Joker&quot;
+Person.prototype.sayName = function(){
+  alert(this.name)
+}
+let person1 = new Person()
+let person2 = new Person()
+console.log(person1.sayName === person2.sayName) //true
+</code></pre>
+<p>创建了自定义构造函数Person()后，其原型对象会自动生成一个constructor指向Person。当调用构造函数生成实例后，实例会有一个[[prototype]]属性，虽然这个属性在js中没有明确的访问方式，不过Firefox、chrome和Safari都有一个__proto__表示，实例的[[prototype]]指向构造函数的prototype。
+{%asset_img prototype.png 实例与原型的关系%}
+然而原型模式也存在着问题，定义在prototype上的函数或方法是被所有的实例所共享的。如果是值类型的属性倒也还好，当属性为引用类型时就会出现问题。</p>
+<pre><code class="language-javascript">function Person() {}
+Person.prototype.borther = [&quot;apple&quot;,&quot;Logitech&quot;]
+let person1 = new Person()
+let person2 = new Person()
+person1.borther.push(&quot;MacBook&quot;)
+console.log(person1.borther) //[&quot;apple&quot;, &quot;Logitech&quot;, &quot;MacBook&quot;]
+console.log(person2.borther) //[&quot;apple&quot;, &quot;Logitech&quot;, &quot;MacBook&quot;]
+</code></pre>
+<p>所以就有了下面这种创建类的模式</p>
+<h2 id="组合使用构造函数和原型模式">组合使用构造函数和原型模式</h2>
+<p>组合使用构造函数和原型可以说是创建自定义类型比较常见的方式，使用构造函数来定义实例属性，原型模式定义方法和共享的属性。每个实例都有自己的实例属性，同时又共享对方法的引用，最大限度的节省了内存。同时这种方法还能够向构造函数传递参数，可谓集两者之所长。</p>
+<pre><code class="language-javascript">function Person(name = &quot;people&quot;, borther = [&quot;Apple&quot;]){
+  this.name = name
+  this.borther = borther
+}
+Person.prototype = {
+  constructor: Person,
+  sayName(){
+    alert(this.name
+  }
+}
+let person1 = new Person()
+let person2 = new Person(&quot;superman&quot;, [&quot;蜘蛛侠&quot;, &quot;钢铁侠&quot;])
+</code></pre>
+<p>两个实例都拥有各自的name和brother，以及共享的sayName方法。</p>
+<h2 id="动态原型模式">动态原型模式</h2>
+<p>创建类的时候需要将有独立的构造函数和原型，似乎不太合理，动态原型模式使得这一问题得以解决。它把所有的信息都封装在了构造函数中，既能通过在构造函数中检查并初始化原型，又能保持组合创建的优点。</p>
+<pre><code class="language-javascript">function Person(name, age){
+  this.name = name
+  this.age = age
+  if(typeof this.sayName !== &quot;function&quot;){
+    Person.prototype.sayName = function(){
+      alert(this.name)
+    }
+  }
+}
+</code></pre>
+<h2 id="寄生构造函数模式">寄生构造函数模式</h2>
+<p>--也是第一次听到这个模式，书上说在前几种模式不适用的情况下可以采用这一种模式。思想是创建一个函数，函数的作用仅仅是封装创建的代码，然后返回新创建的对象。</p>
+<pre><code class="language-javascript">function Person(name, age){
+  var o =new Object()
+  o.name = name;
+  o.age = age;
+  o.sayName = function(){
+    alert(this.name)
+  }
+  return o
+}
+</code></pre>
+<p>这个模式可以在特殊情况下为对象创建构造函数。假设我们要创建一个具有额外方法的特殊数组，因为不能直接改造Array，可以使用这个模式。</p>
+<pre><code class="language-javascript">function SpecialArray(...arg){
+  var values = new Array()
+  values.push.apply(values, arg)
+  values.toPipedString = function(){
+    return this.join(&quot;|&quot;)
+  }
+  return values
+ }
+ var colors = new SpecialArray(&quot;red&quot;, &quot;blue&quot;, &quot;yellow&quot;)
+ console.log(colors.toPopedString()) //&quot;red|blue|yellow&quot;
+</code></pre>
+<p>关于寄生构造函数模式，返回的对象和构造函数、构造函数原型属性之间没人有何关系，也就是说函数返回的对象和其外部创建的对象没什么区别。在可以用其他模式的情况下***不要使用这种模式***</p>
+<h2 id="稳妥构造函数模式">稳妥构造函数模式</h2>
+<p>稳妥构造函数和寄生构造函数模式类似，但有亮点不同:一是新创建的对象实例方法不引用this，二是不适用new调用构造函数。</p>
+<pre><code class="language-javascript">function SpecialArray(name, ...arg){
+ var values = new Object()
+ values.toPipedString = function(){
+   console.log(name)
+ }
+ return values
+}
+var colors = SpecialArray(&quot;red&quot;, &quot;blue&quot;, &quot;yellow&quot;)
+colors.toPipedString() //red
+console.log(colors.name) //undefined
+</code></pre>
+<p>在这种模式创建的对象中只有toPipedString方法能访问name，没有别的办法访问。这种安全性使它适用于某些安全执行环境。</p>
+<p>整理完了几种创建类的方式，接着会整理一下继承的一些方式。</p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/es6-xue-xi-bi-ji-set-he-map-shu-ju-jie-gou">
+              <h3 class="post-title">
+                 ES6学习笔记-Set和Map数据结构
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

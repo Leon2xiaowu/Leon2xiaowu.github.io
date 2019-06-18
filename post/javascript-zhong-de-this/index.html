@@ -1,0 +1,249 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title> JavaScript中的This | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+               JavaScript中的This
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2016-12-01 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/javascript-zhong-de-this.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>JavaScript中的This和其他编程语言中的This有那么一点区别，并不会像Java中的This一样指向本身，而是由函数运行时的环境来决定指向什么....</p>
+<h3 id="什么是this">什么是This</h3>
+<p>​	This是函数作用域中的关键字，指向某个对象。不同的执行上下文会导致不同的this指向。</p>
+<pre><code class="language-javascript">function fun(){
+  let count = 1
+  console.log(this.count)
+}
+
+fun()	//undefined
+</code></pre>
+<p>​	上面的栗子中，看上去“this.count” 应该是指向fun自己的count变量，然而实际上函数执行的时候this指向了window</p>
+<pre><code class="language-javascript">let obj = {
+  count: 1,
+  fun(){
+    console.log(`count:${this.count}`)
+  }
+}
+obj.fun()	//count:1
+</code></pre>
+<p>​	当给函数明确调用对象的时候，this就指向的是调用的对象。</p>
+<p>​	由此看出This不同于函数，是在运行时绑定的而不是定义的时候进行绑定。this依赖于调用函数的上下文，和函数被调用的方式相关</p>
+<h3 id="this绑定规则">This绑定规则</h3>
+<p>​	this包含四种绑定规则，分别为默认绑定、隐式绑定、明确绑定以及New 绑定，在Es6箭头函数中的this会比较特殊，指向它的上一层作用域。</p>
+<h4 id="默认绑定">默认绑定</h4>
+<p>​	默认绑定顾名思义就是在没有其他绑定规则适用的情况下采用此种规则进行绑定。第一个栗子就是对this进行默认绑定，<strong>当函数不加任何修饰被独立调用的时候</strong>采用默认绑定，将this绑定到全局window上；因为在全局作用域中并没有“count”变量，所以结果为undefined。</p>
+<p>​	在非严格模式下默认绑定会将this指向window，但是在严格模式下这是不被允许的。</p>
+<pre><code class="language-javascript">function strict(){
+  &quot;use strict&quot;
+  console.log(this.sum)
+}
+strict()	//Uncaught TypeError: Cannot read property 'sum' of undefined(…)
+</code></pre>
+<p>​	另外，只有在以“严格模式”运行的函数中定义this并进行默认绑定才会出现语法错误</p>
+<pre><code class="language-javascript">//非严格模式
+function noStrict(){
+  console.log(this.acg)
+}
+//严格模式
+function strict(){
+  &quot;use strict&quot;
+  noStrict()
+}
+strict()	//undefined
+</code></pre>
+<h4 id="隐式绑定">隐式绑定</h4>
+<p>​	当this所在函数是被一个对象所拥有的时候，将会对this和该对象进行绑定。例如上面第二个例子中fun( )属于obj，也就是说被obj这个对象所拥有，那么就会将obj绑定到this上: this.count 等价于 obj.count 自然就得到了1</p>
+<pre><code class="language-javascript">function fun(){
+  console.log(`count:${this.count}`)
+}
+let obj = {
+  count: 3,
+  fun: fun
+}
+let obj2 = {
+  count: 2,
+  obj: obj
+}
+//只有最后会对this造成影响
+obj2.obj.fun()	// count: 3
+let copy = obj.fun
+copy()	//count:undefined
+</code></pre>
+<p>​	需要注意的是只有对象属性引用链的最后会对this造成影响，就如同上面的代码打印的不是obj2而是obj的count。</p>
+<p>​	隐式绑定有时也会丢失，上面代码中的copy引用了obj中的fun方法，所以执行copy( )实际上就相当于不加修饰的直接调用了 fun( )，从而this指向了全局</p>
+<h4 id="明确绑定">明确绑定</h4>
+<p>​	明确绑定即使用call、apply 方法指定你想要的this，这两个方法的第一个参数都用于绑定原函数中的this，后面的参数一般用于将实参传递给原函数</p>
+<pre><code class="language-javascript">function fun(){
+  console.log(this.count)
+}
+let obj ={
+  count:666
+}
+fun.call(obj)	//666
+</code></pre>
+<h5 id="硬绑定">硬绑定</h5>
+<p>​	因为明确绑定并不能this“丢失”或者是被第三方框架覆盖，通过硬绑定可以实现(下面的代码)。diyBind()封装了对fun的明确绑定，每一次对diyBind()进行调用都会进行一次明确绑定，由此能够实现this不被别的因素改变。这只是我的一个拙劣的实现，在ES5中就已经将硬绑定作为内建工具，使用方法如下。</p>
+<pre><code class="language-javascript">function fun(){
+  console.log(this.count)
+}
+let obj = {
+  count:999
+}
+let diyBind = function (){
+  fun.apply(obj)
+}
+diyBind()	//999
+diyBind.call(window)	//999
+
+//ES5内建bind方法
+let b = fun.bind(obj)
+</code></pre>
+<h4 id="new绑定">New绑定</h4>
+<p>​	在使用new 关键字调用方法的时候，会产生出一个新的对象，这个新创建的对象将会被设置为调用函数的this绑定.  new fun( )时 产生一个全新的对象“xxx” 并将&quot;xxx&quot; 与被调用的fun()中的this进行绑定</p>
+<pre><code class="language-javascript">function fun(a){
+  this.a = a
+}
+
+let xxx = new fun('fun')
+console.log(xxx.a)	//fun
+</code></pre>
+<h4 id="es6箭头函数中this的穿透性">ES6箭头函数中this的穿透性</h4>
+<p>​	箭头函数会将内部的this延伸至上一层的作用域中，也就是上一层的上下文会穿透到内层的箭头函数中来。</p>
+<pre><code class="language-javascript">const obj = {
+  hello: 'world',
+  fun(){
+    const bar = () =&gt; console.log(this.hello)
+    return bar 
+  }
+}
+window.hello = 'ES6'
+window.bar = obj.fun()
+window.bar()	//world
+</code></pre>
+<p>​	将箭头函数转换成ES5的语法就是如下所示</p>
+<pre><code class="language-javascript">const obj = {
+  hello: 'world',
+  fun : function(){
+    var that = this
+    var bar = function(){
+      console.log(that.hello)
+    }
+    return bar 
+  }
+}
+</code></pre>
+<h3 id="绑定规则的优先级">绑定规则的优先级</h3>
+<p>​	绑定规则的优先级由高到低分别为：new绑定 &gt;&gt;  明确绑定 &gt;&gt; 隐式绑定 &gt;&gt; 默认绑定</p>
+<h3 id="总结">总结</h3>
+<ul>
+<li>被new调用：	this相当于新构建的对象</li>
+<li>被call、apply或者bind调用：this相当于指定的对象</li>
+<li>被”拥有调用方法的对象”进行调用的时候：this相当于“拥有被调用方法的那个对象”</li>
+<li>直接调用方法的时候：严格模式下语法错误，非严格模式下this相当于全局对象</li>
+</ul>
+
+            </div>
+          </article>
+        </div>
+
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

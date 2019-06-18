@@ -1,0 +1,294 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Webpack学习笔记二 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Webpack学习笔记二
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2017-02-14 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/9IfyZcgbR" class="post-tag">
+                  # Webpack
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/webpack-xue-xi-bi-ji-er.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>这是学习Webpack的下一篇笔记，上一篇<a href="https://jsdtt.github.io/2017/01/13/Webpack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80/">webpack学习笔记一</a>.</p>
+<h3 id="common-chunk">Common chunk</h3>
+<p>当多个script文件用着公共的函数块时，你能使用CommonsChunkPlugin将公共部分编译成为一个单独的文件。
+省略了html和js..
+webpack.config.js</p>
+<pre><code class="language-javascript">var CommonsChunkPlugin = require(&quot;webpack/lib/optimize/CommonsChunkPlugin&quot;);
+module.exports = {
+  entry: {
+    bundle1: './main1.jsx',
+    bundle2: './main2.jsx'
+  },
+  output: {
+    filename: '[name].js'
+  },
+  module: {
+    loaders:[
+      {
+        test: /\.js[x]?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        query: {
+          presets: ['es2015', 'react']
+        }
+      },
+    ]
+  },
+  plugins: [
+    new CommonsChunkPlugin('init.js')
+  ]
+}
+</code></pre>
+<p>通过webpack编译打包后会生成一个init.js的公共部分</p>
+<h3 id="vendor-chunk">Vendor chunk</h3>
+<p>不知道Vendor chunk应该翻译成什么，大意应该就是第三方library函数块。
+通过CommonsChunkPlugin能够将第三方的library导出为一个单独的文件，从而让编译后的js在开发的时候更加清晰</p>
+<pre><code class="language-javascript">var $ = require('jquery')
+$.('h1').text('Hello World')
+</code></pre>
+<p>//省略html，在html中要引入分割出来的第三方library，如vendor.js
+webpack.config.js</p>
+<pre><code class="language-javascript">var webpack = require('webpack')
+module.exports = {
+  entry: {
+    app: './main.js',
+    vendor: ['jquery'],
+  },
+  output: {
+    filename: 'bundle.js'
+  },
+  plugins: [
+    new webpack.optimize.CommonsChunkPlugin(/* chunkName= */'vendor', /* filename= */'vendor.js')
+  ]
+}
+</code></pre>
+<p>如果你想让一个模块能够被其他任何模块所得到，例如$和jQuery。你除了需要require(&quot;jquery&quot;)之外还应该使用<a href="http://webpack.github.io/docs/shimming-modules.html">ProvidePlugin</a></p>
+<pre><code class="language-javascript">// main.js
+$('h1').text('Hello World');
+
+
+// webpack.config.js
+var webpack = require('webpack');
+
+module.exports = {
+  entry: {
+    app: './main.js'
+  },
+  output: {
+    filename: 'bundle.js'
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: &quot;jquery&quot;,
+      jQuery: &quot;jquery&quot;,
+      &quot;window.jQuery&quot;: &quot;jquery&quot;
+    })
+  ]
+};
+</code></pre>
+<h3 id="exposing-global-variables">Exposing global variables</h3>
+<p>如果你想使用一些全局变量，但是不想这些变量在bundle的时候包括在里面。你可以开启在webpack的配置文件中开启externals.<a href="http://webpack.github.io/docs/library-and-externals.html">文档</a>
+例如你有一个data.js</p>
+<pre><code class="language-javascript">var data = &quot;Hello&quot;
+</code></pre>
+<p>我们能够将data暴露出来，成为全局变量</p>
+<pre><code class="language-javascript">module.exports = {
+  entry: './main.jsx',
+  output: {
+    filename: 'bundle.js'
+  },
+  module: {
+    loaders:[
+      {
+        test: /\.js[x]?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        query: {
+          presets: ['es2015', 'react']
+        }
+      },
+    ]
+  },
+  externals: {
+    // require('data') is external and available
+    //  on the global var data
+    'data': 'data'
+  }
+}
+</code></pre>
+<p>现在，你可以在js中像引用模块变量一样加载data，但是它实际上是一个全局变量</p>
+<pre><code class="language-javascript">// main.jsx
+var data = require('data');
+var React = require('react');
+var ReactDOM = require('react-dom');
+
+ReactDOM.render(
+  &lt;h1&gt;{data}&lt;/h1&gt;,
+  document.body
+);
+</code></pre>
+<h3 id="hot-module-replacement">Hot Module Replacement</h3>
+<p>Hot Module Replacement()热加载能够在修改后对应用进行实时加载而不需要重新加载，你能够使用两种方法开启热加载
+（1）在命令行追加“--hot”和”--inline“</p>
+<pre><code>$ webpack-dev-server --hot --inline
+</code></pre>
+<ul>
+<li>--hot: 添加HotModuleReplacementPlugin并似的服务进入热加载模式</li>
+<li>--inline: webpack-dev-server在运行中进行bundle</li>
+<li>--hot --inline: 同时添加上面两个命令的功能
+（2）编辑webpack配置文件</li>
+<li>添加HotModuleReplacementPlugin扩展</li>
+<li>在entry中添加 webpack/hot/dev-server 和 webpack-dev-server/client?http://localhost:8080</li>
+</ul>
+<p>webpack的配置文件就像下面这样</p>
+<pre><code class="language-javascript">var webpack = require('webpack');
+var path = require('path');
+
+module.exports = {
+  entry: [
+    'webpack/hot/dev-server',
+    'webpack-dev-server/client?http://localhost:8080',
+    './index.js'
+  ],
+  output: {
+    filename: 'bundle.js',
+    publicPath: '/static/'
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ],
+  module: {
+    loaders: [{
+      test: /\.jsx?$/,
+      exclude: /node_modules/,
+      loader: 'babel-loader',
+      query: {
+        presets: ['es2015', 'react']
+      },
+      include: path.join(__dirname, '.')
+    }]
+  }
+};
+</code></pre>
+<p>现在我们可以像之前一样启动服务了</p>
+<pre><code>$ webpack-dev-server
+</code></pre>
+<p>其实还有很多配置参数没有讲到，<a href="https://github.com/webpack/docs/wiki/configuration#configuration-object-content">配置项参考文档</a></p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/webpack-xue-xi-bi-ji-yi">
+              <h3 class="post-title">
+                Webpack学习笔记一
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

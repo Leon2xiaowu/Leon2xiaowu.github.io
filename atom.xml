@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Leon2xiaowu.github.io</id>
     <title>普通程序员的博客</title>
-    <updated>2019-06-16T16:54:31.951Z</updated>
+    <updated>2019-06-18T13:47:29.918Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Leon2xiaowu.github.io"/>
     <link rel="self" href="https://Leon2xiaowu.github.io/atom.xml"/>
@@ -76,6 +76,643 @@ Reboot your device now.
 <p>找个<code>shadowsocks_4.1.3.tar.gz</code>通过离线安装的方式装入软件中心</p>
 <h2 id="end">End</h2>
 <p>这玩意搞的我比写99个需求都累。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Echarts动态加载GeoJSON地图]]></title>
+        <id>https://Leon2xiaowu.github.io/post/echarts-dong-tai-jia-zai-geojson-di-tu</id>
+        <link href="https://Leon2xiaowu.github.io/post/echarts-dong-tai-jia-zai-geojson-di-tu">
+        </link>
+        <updated>2018-10-18T13:21:39.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="echarts监听geo地图缩放比例">Echarts监听GEO地图缩放比例</h2>
+<pre><code class="language-javascript">myChart.on('georoam', function() {
+    //  console.log(arguments);
+    // 回调函数自带的res中zoom永远都是1.1
+    console.log(myChart.getOption().geo[0].zoom);
+})
+</code></pre>
+<h2 id="按需加载geojson">按需加载GEOJSON</h2>
+<p>某个需求要求的是点亮用户去过的地方，国内到城市、国外精确到州。</p>
+<p>在Echarts官方仓库中找到<a href="https://github.com/pissang/starbucks"><strong>starbucks</strong></a>，内含各个州的GEO数据。</p>
+<p>直觉告诉我只要拼起来就能实现word数据中包含所有州的信息。</p>
+<h3 id="geojson">GEOJSON</h3>
+<p><a href="https://www.oschina.net/translate/geojson-spec?lang=chs&amp;page=1#">格式规范说明</a></p>
+<p><img src="https://i.loli.net/2018/05/30/5b0e443bb5e1e.png" alt="carbon.png"></p>
+<p>大致就是这样一个结构、具体的键值含义规范中有说明。<code>features</code>数组中的每一个对象都描述的是<strong>一块区域</strong>。那么把<code>world.json</code>里缺失的更细颗粒度的区域也加进来就ojbk了。</p>
+<h3 id="多余的key">多余的key</h3>
+<p>上面结构多了<code>UTF8Encoding</code> <code>encodeOffsets</code> <code>name</code> 这几个key，在格式规范中不是必须的，看了下<code>Echarts</code>处理JSON部分的源码是有用到的，用于decode JSON文件。</p>
+<h3 id="拼接">拼接</h3>
+<p>起初直接将两个JSON对象的<code>features</code>进行合并<code>world.features.concat(china.features)</code></p>
+<p>失败了，合出来的JSON虽然符合规范，但是并不正确，渲染出来严重畸形。</p>
+<p><img src="https://i.loli.net/2018/05/30/5b0e47c808ca9.png" alt="什么鬼(#`O′)"></p>
+<p>经过对比，<code>world.json</code>中的<code>coordinates</code>字段为经纬度，<code>china.json</code>中则为Encode处理后的经纬度。</p>
+<p>Debug源码发现由<code>UTF8Encoding</code>控制是否对JSON内容进行Decode，于是给合并后的JSON数据加上<code>UTF8Encoding = true</code>，然后又失败了。</p>
+<p>控制台抛出异常：<code>Invalid geoJson format; coordinate.charCodeAt is not a function</code></p>
+<p>喵喵喵??  decode完就格式就不对了...
+Debug源码找到原因，<code>UTF8Encoding</code>为true开启decode后，对整个list进行decode操作，decode操作又要用到<code>encodeOffsets</code>，<code>world.json</code>没有这个key，所以就嗝屁了。</p>
+<p>在拼接JSON前先把JSON给decode好，不就没问题了么，试了一下果然搞定了。</p>
+<h3 id="看个效果">看个效果</h3>
+<p><img src="https://i.loli.net/2018/06/02/5b122a8887373.gif" alt="Jun-02-2018 13-25-09.gif"></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WebGL渲染透明视频]]></title>
+        <id>https://Leon2xiaowu.github.io/post/webgl-xuan-ran-tou-ming-shi-pin</id>
+        <link href="https://Leon2xiaowu.github.io/post/webgl-xuan-ran-tou-ming-shi-pin">
+        </link>
+        <updated>2018-09-14T15:20:20.000Z</updated>
+        <content type="html"><![CDATA[<p>WebGL也好OpenGL也好都是挺复杂的东西, 上回<a href="https://blog.normaldev.app/2018/08/25/WebGL%E5%85%A5%E9%97%A8-4/">Part4</a>渲染的透明图片也比较糙,.</p>
+<p>本来这次了解WebGL的目的是为了某个类似于在地图上呈现天气那种效果的需求, 最终目的是为了实现带有Alpha通道的视频效果, 这次通过这样一个DEMO也大致的实现了, 在<code>Chrome 69.0.3497.92</code>以及<code>iOS 12 GM</code>上的Safari和微信内置浏览器下测试通过.</p>
+<p>主要是以下几点</p>
+<ol>
+<li>开启混合Blend</li>
+<li>设置正确的混合方式</li>
+<li>合适的视频素材</li>
+</ol>
+<h3 id="开启混合">开启混合</h3>
+<pre><code class="language-javascript">// ...省略gl的获取步骤
+gl.enable(gl.BLEND);
+</code></pre>
+<h3 id="合适的混合方式">合适的混合方式</h3>
+<pre><code class="language-javascript">gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+</code></pre>
+<h3 id="片元着色器中-将取样器的内容混合">片元着色器中, 将取样器的内容混合.</h3>
+<pre><code class="language-javascript">const FSHADER_SOURCE = `
+  #ifdef GL_ES
+  precision mediump float;
+  #endif
+
+  uniform sampler2D uSampler;
+  uniform sampler2D uSampler_2;
+
+  varying vec2 vTexCoord;
+  varying vec2 vTexCoord2;
+  void main() {
+    vec4 vTexture1 = texture2D(uSampler, vTexCoord);
+    vec4 vTexture2 = texture2D(uSampler_2, vTexCoord2);
+    gl_FragColor = vec4(vTexture1.rgb, vTexture2.r);
+    // gl_FragColor = vTexture1 * vTexture2;
+  }
+`
+</code></pre>
+<p>这里我用了一个固定的遮罩图片,来确定透明的部分(黑色的).</p>
+<p>实际上, 可以将<strong>源视频和遮罩层视频拼合, 放在同一个视频当中,保证每次混合获取到的都是同一帧</strong></p>
+<h3 id="效果">效果</h3>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fv9i40bzyxg20t21684qq.gif" alt="透明视频效果图"></p>
+<p>DEMO没有放在线上, 感兴趣的自己把代码下下来放在服务器环境下,访问 <code>transparent_video</code>文件夹好了.</p>
+<p><a href="https://share.weiyun.com/5mmnGZ5">代码地址</a></p>
+<h3 id="参考文章">参考文章</h3>
+<p>感谢以下大佬的文章让我实现这个效果, 下面的文章讲解的比较细致,值得一看.</p>
+<p><a href="http://dopro.io/animation-solution-alpha-video.html">精准光影动效解决之道-透明视频</a></p>
+<p><a href="http://www.jiazhengblog.com/blog/2017/01/04/2989/">WebGL绘制详解之七：Blend</a></p>
+<p><a href="https://webglfundamentals.org/webgl/lessons/zh_cn/webgl-and-alpha.html">WebGL 和阿尔法通道</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WebGL入门-Part4]]></title>
+        <id>https://Leon2xiaowu.github.io/post/webgl-ru-men-part4</id>
+        <link href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part4">
+        </link>
+        <updated>2018-08-25T03:24:37.000Z</updated>
+        <content type="html"><![CDATA[<p>WebGL和Canvas一样也可以绘制图片（视频），WebGL中称为纹理。</p>
+<h2 id="坐标">坐标</h2>
+<p>在开始给图形贴上纹理前，来了解一下几个坐标的概念。</p>
+<h3 id="纹理坐标">纹理坐标</h3>
+<p>纹理坐标就是纹理图像的坐标，为一个二维坐标，WebGL使用s和t命名纹理坐标已区别x，y坐标。</p>
+<p>左下角为<strong>原点</strong>， 无论图像尺寸是多少，右上角的顶点始终为 (1, 1)。</p>
+<p>不同于图片坐标系，图片坐标系原点在左上角，右下角为(1, 1).</p>
+<p>通过纹理坐标映射到顶点告诉WebGL 要将纹理的哪个部分绘制到WebGL中的哪个部分。</p>
+<p>🌰右下的图表示了将整幅纹理映射到整个WebGL的画布上。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fulsxnyenbj211y0dk76f.jpg" alt="纹理坐标"></p>
+<h2 id="着色器">着色器</h2>
+<p>纹理图像需要顶点着色器分别接收纹理坐标和定点坐标，纹理坐标将通过<code>varying</code>传递给片元着色器。</p>
+<p>片元着色器中需要定义一种特殊的、专门用来处理纹理对象的数据类型。</p>
+<ul>
+<li>sampler2D   // 绑定到gl.TEXTURE_2D上的纹理数据类型</li>
+<li>samplerCube   // 绑定到gl.TEXTURE_CUBE_MAP上的纹理数据类型</li>
+</ul>
+<pre><code class="language-javascript">// 顶点着色器
+const VSHADER_SOURCE = `
+  attribute vec4 aPosition;
+  attribute vec2 aTexCoord;
+
+  varying vec2 vTexCoord;
+
+  void main() {
+    gl_Position = aPosition;
+    vTexCoord = aTexCoord;
+  }
+`;
+// 片元着色器
+const FSHADER_SOURCE = `
+  #ifdef GL_ES
+  precision mediump float;
+  #endif
+
+  uniform sampler2D uSampler;
+
+  varying vec2 vTexCoord;
+  void main() {
+    vec4 vTexture = texture2D(uSampler, vTexCoord);
+    gl_FragColor = vTexture;
+  }
+`;
+</code></pre>
+<h2 id="传递坐标参数">传递坐标参数</h2>
+<p>在着色器中分别定义了<code>aPosition</code>接收顶点坐标, <code>aTexCoord</code>接收纹理坐标, <code>uSampler</code>接收纹理对象.</p>
+<p>现在来把顶点和纹理坐标传给着色器</p>
+<p>定义坐标数据</p>
+<pre><code class="language-javascript">const vertices = new Float32Array([
+    //   顶点    纹理坐标
+    -0.5,  0.5, 0.0, 1.0,
+    -0.5, -0.5, 0.0, 0.0,
+     0.5, -0.5, 1.0, 0.0,
+     0.5,  0.5, 1.0, 1.0,
+])
+</code></pre>
+<p>分配缓冲区数据给attribute并开启, 省略创建缓冲区等步骤...</p>
+<pre><code class="language-javascript">// 分配顶点数据
+gl.vertexAttribPointer(aPosition, 2, gl.FLOATS, false, 4, 0);
+// 分配纹理坐标数据
+gl.vertexAttribPointer(aTexCoord, 2, gl.FLOATS, false, 4, 2);
+// 开启
+gl.enableVertexAttribArray(aPosition);
+gl.enableVertexAttribArray(aTexCoord);
+</code></pre>
+<h2 id="配置和加载纹理">配置和加载纹理</h2>
+<h3 id="创建纹理对象">创建纹理对象</h3>
+<p><code>createTexture()</code>创建一个纹理对象;</p>
+<p><code>deleteTexture()</code>删除一个纹理对象.</p>
+<pre><code class="language-javascript">// 创建纹理对象
+const texture = gl.createTexture();
+// ...
+const uSampler = gl.getUniformLocation(gl.program, 'uSampler');
+</code></pre>
+<h3 id="为webgl配置纹理">为WebGL配置纹理</h3>
+<p>因为图片异步加载的原因, 配置纹理对象会放在图片<code>onload</code>回调函数中执行.</p>
+<pre><code class="language-javascript">const img = new Image();
+img.onload = () =&gt; {
+  // ... 执行纹理配置  
+};
+img.src = 'https://..img url';
+// 如果纹理图片不在当前域名下, 图片和视频遵循同源策略是不允许绘制的
+</code></pre>
+<h3 id="图像y轴反转">图像Y轴反转</h3>
+<p>由于图像坐标的Y轴(正方向乡下)和纹理坐标的Y轴(正方向向上) 是相反的, 需要通过<code>gl.pixelStorei(pname, value)</code>将纹理图像进行Y轴反转.</p>
+<p>反转方法接收两个参数, pname表示操作的类型, 值为以下两者之一:</p>
+<ul>
+<li>gl.UNPACK_FLIP_Y_WEBGL   对图像进行Y轴反转, 默认false</li>
+<li>gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL 将图像RBG颜色值每个分量乘A, 默认false</li>
+</ul>
+<p>value 接收一个整数已表示true (非0) or false (0)</p>
+<h3 id="激活纹理单元">激活纹理单元</h3>
+<p>WebGL通过纹理单元的机制来同时使用多个纹理.</p>
+<p>每个纹理单元有一个唯一的单元编号, 来管理一张纹理图像.及时只使用一张纹理图像也要指定一个纹理单元.</p>
+<p>支持的纹理单元个数取决于硬件和浏览器的WebGL实现,默认情况下至少支持8个纹理单元.</p>
+<p><code>gl.TEXTRUE0</code>, <code>gl.TEXTURE1...7</code>个表示一个纹理单元.</p>
+<p><code>gl.activeTexture(gl.TEXTURE0);</code> 通过activeTexture方法来激活指定的纹理单元.</p>
+<h3 id="绑定纹理对象">绑定纹理对象</h3>
+<p>和绑定缓冲区对象一样,纹理对象也需要进行绑定后才能操作.</p>
+<p><code>gl.bindTexture(gl.TEXTURE_2D, texture);</code>绑定创建好的纹理,</p>
+<p>第一个参数有两个选择</p>
+<ul>
+<li>gl.TEXTURE_2D 二维纹理</li>
+<li>gl.TEXTURE_CUBE_MAP 立方体纹理</li>
+</ul>
+<h3 id="配置纹理对象的参数">配置纹理对象的参数</h3>
+<p>通过<code>texParameteri(target, pname, param)</code>配置纹理对象的参数, 来设置纹理图像映射到图形上的具体方式: 比如填充的方式等等...</p>
+<p>target 和绑定纹理对象一样,有二维纹理和立方体纹理两个值.</p>
+<p>pname 分别有四个值, 对应在填充纹理时不懂得处理方式</p>
+<p>param为其对应的值, 每个pname均设有默认值</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1funew5ksahj20xy0a8n1v.jpg" alt="pname的取值"></p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1funeww0t88j20x40gqgti.jpg" alt=""></p>
+<h3 id="将纹理图像分配给纹理对象">将纹理图像分配给纹理对象</h3>
+<p>使用 <code>textImage2D(target, level, internalformat, format, type, image)</code>方法将纹理图像分配给纹理对象</p>
+<ul>
+<li>target 与之前一样,二维和立方体两个选项</li>
+<li>level 为金字塔纹理准备的参数, 传入0即可</li>
+<li>internalformat 图像的内部格式, 有 RBG, RGBA等等..</li>
+<li>format 纹理数据的格式, 要求和internalformat相同</li>
+<li>type 纹理数据的数据格式, 有<code>UNSIGNED_BYTE</code> 无符号整形和其他一些格式</li>
+<li>image 包含纹理图像的Image对象</li>
+</ul>
+<h3 id="传递纹理单元给片元着色器">传递纹理单元给片元着色器</h3>
+<p><code>gl.uniform1i(uSampler, 0)</code></p>
+<p>uSampler为uniform变量的地址,</p>
+<p>0 表示之前开启的第0号纹理单元</p>
+<h3 id="绘制">绘制</h3>
+<p><code>gl.drawArrays(gl.TRIANGLE_STRIP, 0, n)</code> 已<code>TRIANGLE_STRIP</code>的形式绘制出纹理.</p>
+<p>💡<a href="https://jsbin.com/jequfaxive/2/edit?html,js,output">DEMO 遮罩实现图像纹理透明</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WebGL入门-Part3]]></title>
+        <id>https://Leon2xiaowu.github.io/post/webgl-ru-men-part3</id>
+        <link href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part3">
+        </link>
+        <updated>2018-08-21T13:52:46.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://blog.normaldev.app/2018/08/18/WebGL%E5%85%A5%E9%97%A8-2/">Part2</a>中 写了个简单的着色器在画布中绘制了一个点，接下来 通过向着色器传递参数的形式去绘制，同时利用缓冲区一次传递多个参数。</p>
+<p>有两种方式能够用来传递参数：<strong>attribute变量</strong> 和 <strong>uniform变量</strong>.</p>
+<p>attribute用来传输与顶点相关的数据，uniform则与之相反，传递的是通用的数据（与顶点无关的）。</p>
+<h2 id="声明变量">声明变量</h2>
+<p>在着色器中声明attribute和uniform变量后， 可以通过JavaScript传递给着色器。</p>
+<p>声明变量的格式：**「存储限定符」「类型」「变量名」 **</p>
+<p>顶点着色器</p>
+<pre><code class="language-c">attribute vec4 aPosition; // 通过attribute 声明变量
+void main() {
+	gl_Position = aPosition;
+    gl_PointSize = 10.0;
+}
+</code></pre>
+<p>片元着色器</p>
+<pre><code class="language-c">precision mediump float; // 精度限定符
+uniform vec4 uColor; // 通过 uniform 声明变量
+void main() {
+	gl_FragColor = uColor;
+}
+</code></pre>
+<h2 id="获取变量地址">获取变量地址</h2>
+<p>向WebGL获取某个变量的地址、JS通过给这个地址赋值从而将值传递给着色器。</p>
+<h3 id="获取attribute变量">获取attribute变量</h3>
+<p>getAttribLocation方法接收两个参数：</p>
+<ul>
+<li>gl.program是WebGL的program对象，只有在初始化（通过 的工具方法<code>initShaders()</code>）后才能获取到。</li>
+<li>第二个参数是变量名，也就是你在着色器中定义的变量名称。</li>
+</ul>
+<p>Return：</p>
+<ul>
+<li>✅成功正确获取的地址为 &gt;= 0 的值。</li>
+<li>❌获取失败返回结果为**-1**</li>
+</ul>
+<p><code>const aPosition = gl.getAttribLocation(gl.program, 'aPosition');</code></p>
+<h3 id="获取uniform变量">获取uniform变量</h3>
+<p>getUniformLocation方法同getAttribLocation方法一样，接收两个参数。</p>
+<p>Return：</p>
+<ul>
+<li>✅非null值；表示获取成功</li>
+<li>❌null值；表示获取失败</li>
+</ul>
+<p><code>const uColor = gl.getUniformLocation(gl.program, 'uColor');</code></p>
+<h2 id="赋值">赋值</h2>
+<p>分别拿到了变量的地址，然后就可以向着色器传递参数。</p>
+<h3 id="向attribute传参">向attribute传参</h3>
+<p><code>gl.vertexAttrib[1234]f()</code>向attribute传递参数，这是一个系列函数，[1234]分别对应四个函数。</p>
+<pre><code class="language-javascript">void gl.vertexAttrib1f(location, v0);
+void gl.vertexAttrib2f(location, v0, v1);
+void gl.vertexAttrib3f(location, v0, v1, v2);
+void gl.vertexAttrib4f(location, v0, v1, v2, v3);
+</code></pre>
+<p>第一个参数为上一步所获取到的着色器变量的地址，后面为需要传递的值。</p>
+<p><code>gl.vertexAttrib4f(aPosition, 0.0, 0.5, 0.0, 0.0);</code> 向aPosition传递一个位于(0.0, 0.5, 0.0, 0.0)的点。</p>
+<h3 id="向uniform传参">向uniform传参</h3>
+<p><code>gl.uniform[1234]f</code>向uniform传参，同样这也是一个系列函数。</p>
+<p>接收的参数也和<code>vertexAttrib</code>方法一样。</p>
+<p><code>gl.uniform4f(uColor, 1.0, 0.0, 0.0, 0.0);</code> 向片元着色器传递一个红颜色。</p>
+<p>💡<a href="https://jsbin.com/fivuxixipi/edit?html,js,output">传递参数给着色器_DEMO</a></p>
+<h2 id="buffer缓冲区传递参数">Buffer缓冲区传递参数</h2>
+<p>在上面的例子中， 只是笨拙的向着色器传递单个参数，当 需要一次根据多个Position进行绘制时就需要一次传递多个参数给着色器。</p>
+<p>接下来 通过缓冲区向着色器传递多个参数。</p>
+<h3 id="创建缓冲区对象">创建缓冲区对象</h3>
+<p><code>gl.createBuffer()</code>创建缓冲区对象</p>
+<p><code>gl.deleteBuffer(buffer)</code>可以用来删除已有的缓冲区对象</p>
+<h3 id="绑定缓冲区">绑定缓冲区</h3>
+<p><code>gl.bindBuffer(target, buffer)</code>  将创建的缓冲区对象buffer绑定到目标区域。</p>
+<p>target参数可以是下面其中之一：</p>
+<ul>
+<li>gl.ARRAY_BUFFER ——表示缓冲区对象中包含顶点的数据</li>
+<li>gl.ELEMENT_ARRAY_BUFFER —— 表示缓冲区对象包含了顶点的索引值</li>
+</ul>
+<h3 id="写入数据到缓冲区">写入数据到缓冲区</h3>
+<p>因为数据不能直接写入缓冲区，所以需要通过上一步，将缓冲区和Target进行绑定，接下来通过<code>gl.bufferData(target, vertices, usage)</code>将数据写入『目标』。</p>
+<h4 id="类型化数组">类型化数组</h4>
+<p>有一种特殊的数组，其中的元素都是同一种类型， 称之为类型化数组。</p>
+<p>有下面几种类型</p>
+<ul>
+<li>Int[8|16|32]Array —— [8|16|32]位整型数组</li>
+<li>UInt[8|16|32]Array —— [8|16|32]位无符号整型数组</li>
+<li>Float[32|64]Array —— 单、双精度[32|64]位浮点数</li>
+</ul>
+<pre><code class="language-javascript">const vertices = new Float32Array([
+    0.0, 0.5,
+    -0.5, -0.5,
+    0.5, -0.5,
+]);
+</code></pre>
+<p>定义写入缓冲区的数据</p>
+<h4 id="usage">USAGE</h4>
+<p>usage表示程序如何使用存储在缓冲区对象中的数据，可以帮助WebGL优化操作，就算传错了也不会异常，仅仅可能降低了运行效率。</p>
+<p>有以下三个取值：</p>
+<ul>
+<li>gl.STATIC_DRAW ——向缓冲区对象写入一次数据，但需要绘制很多次</li>
+<li>gl.STREAM_DRAW ——向缓冲区对象写入一次数据，绘制若干次</li>
+<li>gl.DYNAMIC_DRAW ——写入多次数据、绘制很多次</li>
+</ul>
+<p>了解这些 就可以通过<code>gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)</code>将数据写入缓冲区对象。</p>
+<h3 id="分配缓冲区对象给attribute">分配缓冲区对象给attribute</h3>
+<p>前面 通过系列函数给attribute和uniform传递参数，这些方法一次只能传递一个值</p>
+<p><code>gl.vertexAttribPointer(location, size, type, normalize, stride, offset)</code>可以将整个缓冲区对象分配给attribute。</p>
+<ul>
+<li>location —— 前面获取到的attribute的地址</li>
+<li>size —— 表示每个顶点的所需要的的分量个数</li>
+<li>tyle —— 指定数据格式</li>
+<li>normalize —— true or false，表示是否将非浮点数的数据规划到[0, 1] 或者 [-1 ,1]</li>
+<li>stride —— 相邻结点间的字符数</li>
+<li>offset —— 数据的偏移量</li>
+</ul>
+<p>有几个参数还是挺抽象的，看个🌰</p>
+<p>假设需要通过一个buffer，分配給两个不同的attribute， 可以这样操作。</p>
+<pre><code class="language-javascript">// 定义一个Array分别描述点的位置和颜色 
+const muitVertices = new Float32Array([
+  	// 描述点		描述颜色
+    0.0, -0.5, 1.0, 0.0, 0.1,
+    0.5, -0.5, 0.0, 1.0, 0.1,
+]);
+const FSIZE = muitVertices.BYTES_PER_ELEMENT;
+// 写入缓冲区
+// ... 
+// 分配缓冲区对象給位置attribute  aPosition
+// stride为5可以理解为每5个元素为一组数据
+// size为2，offset为0 意味着aPosition 需要用到 一组数据（就是5个元素）中的前两个
+gl.vertexAttribPointer(aPositionLocation, 2, gl.FLOAT, false, 5 * FSIZE, 0);
+// 分配缓冲区对象給颜色attribute aColor
+// size为3，offset为2 意味着aColor 需要用到 一组数据（就是5个元素）中去掉前两个(偏移量)的后三个
+gl.vertexAttribPointer(aColorLocation, 3, gl.FLOAT, false, 5 * FSIZE, 2 * FSIZE);
+</code></pre>
+<h3 id="开启attribute对象">开启attribute对象</h3>
+<p>为了能够让着色器访问缓冲区内的数据， 需要使用<code>gl.enableVertexAttribArray(location)</code>来开启对应的attribute对象。</p>
+<h3 id="绘制">绘制</h3>
+<p>接着 就可以通过<code>gl.drawArrays(type, start, count)</code>来绘制了，此时 还能通过改变第二、三个参数来绘制不同的形状了。</p>
+<p>第一个参数是绘制的类型，<a href="https://blog.normaldev.app/2018/08/18/WebGL%E5%85%A5%E9%97%A8-2/">Part-2</a>中有讲到 ，可以自行尝试更改。</p>
+<p>start表示从第几个attribute开始绘制</p>
+<p>count表示从start开始绘制几个点</p>
+<p>⚠️ start + count &lt;= 总数</p>
+<p>💡<a href="https://jsbin.com/gegatifawa/edit?html,js,output">DEMO</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WebGL入门-Part2]]></title>
+        <id>https://Leon2xiaowu.github.io/post/webgl-ru-men-part2</id>
+        <link href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part2">
+        </link>
+        <updated>2018-08-18T03:49:13.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://blog.normaldev.app/2018/08/17/WebGl%E5%85%A5%E9%97%A8-1/">WebGL入门-Part1</a> 中介绍了一些基本概念，接着我们来用WebGL画点东西，熟悉绘制WebGL的基本流程。</p>
+<h2 id="获取上下文环境">获取上下文环境</h2>
+<p>WebGL的绘制也是在<code>&lt;canvas&gt;</code>标签的基础上进行绘制的，第一步也是创建CanvasDom并获取其WebGL的上下文。</p>
+<pre><code class="language-javascript">const canvas = document.querySelector('#J_canvas');
+// 在不同浏览器环境下
+// context可能对应着不同的值 [&quot;webgl&quot;, &quot;experimental-webgl&quot;, &quot;webkit-3d&quot;, &quot;moz-webgl&quot;]
+const gl = canvas.getContext('webgl');
+</code></pre>
+<h2 id="定义着色器">定义着色器</h2>
+<p>WebGL必须要使用着色器进行绘制，我们要用 GLSL ES 定义顶点着色器和片元着色器。</p>
+<p>我们先定义分别定义顶点、片元着色器，绘制一个点。</p>
+<p>着色器语言1均表示的最高值，-1就是最小值。</p>
+<h3 id="顶点着色器">顶点着色器</h3>
+<p>每个着色器都有一个main函数。</p>
+<pre><code class="language-c">void main() {
+  gl_Position = vec4(1.0, 1.0, 0.0, 1.0); // 描述点的位置
+  gl_PointSize = 10.0; // 点的大小
+}
+</code></pre>
+<h3 id="片元着色器">片元着色器</h3>
+<pre><code class="language-c">void main() {
+    // vec4(R, G, B, A) 1就表示R的值为最高也就相当于颜色RGBA(255, 0, 0, 1);
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // 点的颜色
+}
+</code></pre>
+<h2 id="初始化着色器">初始化着色器</h2>
+<p>这里我们先使用辅助函数<code>initShaders(gl, vshader, fshader)</code>初始化着色器，后面我们会详细讲解其内部实现。</p>
+<h2 id="清空绘制区域">清空绘制区域</h2>
+<p>在绘制之前我们可以先清空绘制区域</p>
+<p><code>gl.clearColor(0.0, 1.0, 0.0, 0.5);</code>设置清空背景的填充色</p>
+<p><code>gl.clear(buffer);</code> 执行清空</p>
+<p>buffer指的是缓冲区，执行清空其实就是将指定缓冲区设为给定的值。</p>
+<p>取值有以下三种类型</p>
+<ul>
+<li>gl.COLOR_BUFFER_BIT  颜色缓冲区</li>
+<li>gl.DEPTH_BUFFER_BIT 深度缓冲区</li>
+<li>gl.STENCIL_BUFFER_BIT 模板缓冲区</li>
+</ul>
+<p>通过<code>gl.clear(gl.COLOR_BUFFER_BIT)</code>将颜色缓冲区设为我们给定的色值。</p>
+<p><code>gl.clear(buffer | buffer)</code>可以指定多个缓冲区.</p>
+<p>💡如果清空的颜色不变，则没有必要重复设置clearColor。</p>
+<h2 id="绘制">绘制</h2>
+<p>通过<code>drawArrays(mode, first, count)</code>进行绘制。</p>
+<p>first - 表示从哪个定带你开始绘制</p>
+<p>count - 表示要此次绘制需要用到多少个顶点</p>
+<p>mode告诉WebGL以哪种方式进行绘制，有以下几种方式，可以分别尝试一下。</p>
+<p>🤷‍♂️不过，我们目前只有一个顶点，除了Point其他也画不了。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fudrhjys1rj212e0lugtc.jpg" alt="绘制方式"></p>
+<p>通过<code>gl.drawArrays(glCtx.POINTS, 0, 1);</code>绘制一个点.</p>
+<p>⚠️drawArrays绘制后会清空缓冲区，上一步clear背景色变成默认的透明，如果还需要背景色，需要再一次<code>gl.clear();</code></p>
+<p>💡<a href="https://jsbin.com/vasepolexu/2/edit?html,js,output">这里是DEMO</a></p>
+<p>试着改变着色器中的各个参数会发生什么吧。</p>
+<p><a href="https://blog.normaldev.app/2018/08/21/WebGL%E5%85%A5%E9%97%A8-3/">To Be Continue ✍️ 向着色器传递参数 &gt;&gt;&gt;</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WebGL入门-Part1]]></title>
+        <id>https://Leon2xiaowu.github.io/post/webgl-ru-men-part1</id>
+        <link href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part1">
+        </link>
+        <updated>2018-08-17T14:00:28.000Z</updated>
+        <content type="html"><![CDATA[<blockquote>
+<p>WebGL是一项用来在网页上绘制和渲染复杂三维图形(3D图形)，并允许用户与之进行交互的技术。</p>
+</blockquote>
+<h2 id="概述">概述</h2>
+<p>在个人计算机上使用最广泛的两种三维图形渲染技术是微软的Direct3D和OpenGL。</p>
+<p>WebGL技术规范继承自免费和开源的OpenGL标准，某种意义上，WebGL就是
+&quot;Web版的OpenGL&quot;。</p>
+<p>OpenGL、OpenGL ES各版本和WebGL的关系</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud2af28yej20w80b248i.jpg" alt="OpenGL、OpenGL ES各版本和WebGL的关系"></p>
+<p>WebGL不仅仅包含Javascript还需要引入着色器语言 GLSL ES。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud2grgii2j20u20ca47v.jpg" alt="页面结构对比"></p>
+<p>通过阅读《WebGL编程指南》进行入门是一个不错的选择。</p>
+<h2 id="概念">概念</h2>
+<p>在用WebGL绘制第一个图形前呢，先简单的了解一些概念，方便我们后面对代码的理解。</p>
+<h3 id="着色器">着色器</h3>
+<p>使用WebGL绘图就必须使用着色器，在代码中着色器是以字符串形式「嵌入」在JavaScript中的，在这其中需要用到两种着色器，着色器使用**<code>GLSL ES</code>**语言编写，有点类似于C语言。</p>
+<ul>
+<li>
+<p>顶点着色器</p>
+<p>顾名思义，用来描述顶点特性的程序。举个栗子，顶点可以是二维图形或三维图形的端点或交点，三角形的三个就属于顶点。</p>
+</li>
+<li>
+<p>片元着色器</p>
+<p>对逐个片元进行一一处理的程序，定义如何处理WebGL程序的每一个片元，可以把片元理解为像素。片元着色器可以进行一些牛B的特效处理、比如光照之类的。</p>
+</li>
+</ul>
+<h3 id="webgl坐标系">WebGL坐标系</h3>
+<p>WebGL使用的是三维坐标系，X（水平正方向向右）、Y（垂直，正方向向上）、Z（垂直于屏幕，正方向冲向外，也就是和观察者视线相反）轴。</p>
+<p>也被称为右手坐标系，然鹅实际上并不是，现在就这么认为把。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud31ukxqhj20mo0k6djs.jpg" alt="坐标系"></p>
+<h3 id="canvas和webgl坐标系的对应关系">Canvas和WebGL坐标系的对应关系</h3>
+<p>WebGL的绘制也是基于Canvas绘制的嘛，三维坐标和二维坐标之间也存在一个对应的关系。</p>
+<p>坐标的最大为1、最小为-1；原点位于中心位置。</p>
+<ul>
+<li>Canvas中心点：(0.0, 0.0, 0.0);</li>
+</ul>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud368984tj20he0d8aes.jpg" alt="Canvas和WebGL坐标对应关系"></p>
+<h3 id="canvas与webgl坐标的相互转换">Canvas与WebGL坐标的相互转换</h3>
+<p>假设鼠标在Canvas上点哪里就要在对应位置绘制内容，可以这样去转换坐标。</p>
+<pre><code class="language-javascript">canvas.addEventListener('mousedown', (evt) =&gt; {
+  // rect 是一个具有四个属性left、top、right、bottom的DOMRect对象
+  // 除了width和 height、四个坐标均是DOM边界相对于视窗左上角
+  const rect = evt.target.getBoundingClientRect();
+  // 原点位于中心，宽高分别除2
+  const height = canvas.height / 2;
+  const width = canvas.width / 2;
+
+  const x = ((evt.clientX - rect.left) - width) / width;
+  const y = (height - (evt.clientY - rect.top)) / height;
+})
+</code></pre>
+<p>在了解这些基本概念后，我们就可以着手使用WebGL绘制一些内容啦。</p>
+<p><a href="https://blog.normaldev.app/2018/08/18/WebGL%E5%85%A5%E9%97%A8-2/">To Be Continue ✍️绘制一个点&gt;&gt;&gt;</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[PD虚拟机搭建CentOS-7环境]]></title>
+        <id>https://Leon2xiaowu.github.io/post/pd-xu-ni-ji-da-jian-centos-7-huan-jing</id>
+        <link href="https://Leon2xiaowu.github.io/post/pd-xu-ni-ji-da-jian-centos-7-huan-jing">
+        </link>
+        <updated>2018-07-07T01:08:06.000Z</updated>
+        <content type="html"><![CDATA[<p>第一次接触CentOS之类的内容，以前大学时Linux的课也没好好听过（捂脸），搞得一头雾水。
+SSH直接操作VPS延迟挺大的不爽，于是就利用虚拟机创建个环境方便自己学习。</p>
+<h2 id="准备工作">准备工作</h2>
+<ol>
+<li>Parallels Desktop (Windows对应VM或者其他的虚拟机就可以)</li>
+<li><a href="http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso">CentOS-7-x86_64-Minimal镜像</a></li>
+</ol>
+<h2 id="安装系统">安装系统</h2>
+<p>我用的是PD13.3，可能不同版本之间部分细节会有差异。
+安装很简单，新建 =&gt; 选择下载的CentOS =&gt; 勾选快速安装(省事)，这里设置的密码会成为root用户的密码。
+这里的网络方式我选择了<strong>共享网络</strong>，在后续的操作中并没有出现不通的情况。</p>
+<p>然后就是等待重启，并输入用户名root和刚才设置的密码，成功登录就ok。</p>
+<h2 id="ssh访问虚拟机">SSH访问虚拟机</h2>
+<p>在虚拟机里直接操作太麻烦，且用户体验不好，我们使用SSH访问虚拟机并一顿操作。</p>
+<ol>
+<li>
+<p>检查<code>openssh-server</code>
+<code>yum list installed | grep openssh-server</code> 检查是否已经安装，如果没有则需要通过yum来安装
+<code>yum install openssh-server</code></p>
+</li>
+<li>
+<p>配置ssh_config
+在<code>/etc/ssh/sshd_config</code>有ssh服务的配置，用vim对其编辑
+<code>vi /etc/ssh/sshd_config</code></p>
+</li>
+</ol>
+<p>对配置做如下更改
+开启端口号
+将Port、ListenAddress、ListenAddress 的注释放开、删除前面的#
+<img src="http://pbh6tbqw4.bkt.clouddn.com/image/open_SSH_Config_1.png" alt="配置修改1">
+接着在不远的后面，将PasswordAuthentication设为ye's，虽然好像本来就是yes，如果有注释也要放开
+<img src="http://pbh6tbqw4.bkt.clouddn.com/image/open_SSH_Config_2.png" alt="配置修改2"></p>
+<ol start="3">
+<li>
+<p>开启sshd
+<code>sudo service sshd start</code>开启服务
+<code>ps -e | grep sshd</code>检查sshd服务开启情况</p>
+</li>
+<li>
+<p>测试是否互通
+CentOS中输入<code>ifconfig</code>查看虚拟机的CentOS具体ip
+没有<code>ifconfig</code>命令可以通过<code>yum install net-tools</code>安装
+<img src="http://pbh6tbqw4.bkt.clouddn.com/image/ifconfig.png" alt="ifconfig">
+虚拟机中通过<code>ping 主机ip</code>测试能否ping通
+反过来主机通过<code>ping 虚拟机ip</code>测试
+均能ping通基本没问题，可以通过SSH访问虚拟机了，如果ping不通请Google一下，我没遇到~</p>
+</li>
+</ol>
+<h2 id="安装nginx">安装Nginx</h2>
+<p>我们通过IUS源来安装各种包
+<code>sudo yum install https://centos7.iuscommunity.org/ius-release.rpm</code></p>
+<p>通过yum 安装 Nginx<code>yum install nginx</code></p>
+<p>开机启动Nginx <code>sudo systemctl start nginx.service</code></p>
+<p>然后发现主机访问不了虚拟机的Nginx服务，但的的确确是通的。
+其实是CentOS的防火墙搞的鬼，我们设置一下。</p>
+<p><code>firewall-cmd --zone=public --add-port=80/tcp --permanent</code></p>
+<p>--zone 表示 作用于
+--add-port 为添加端口/协议
+--permanent 永久生效，不加的话重启就凉了</p>
+<p>重启防火墙
+<code>systemctl stop firewalld.service</code>
+<code>systemctl start firewalld.service</code>
+如此一来也就可以愉快的访问虚拟机的Nginx服务了</p>
+<h2 id="安装uwsgi">安装uWSGI</h2>
+<p><code>pip install uwsgi</code></p>
+<p>如果报错的话检查下<code>python3-devel</code>是否有安装
+通过<code>yum -y install python36u-devel</code> 进行安装</p>
+<h3 id="uwsgi放在nginx后遇到的错误">uWSGI放在Nginx后遇到的错误</h3>
+<h4 id="failed-13-permission-denied-while-connecting-to-upstream">failed (13: Permission denied) while connecting to upstream</h4>
+<p>Nginx转发请求本地接口时么有权限导致的</p>
+<p><a href="https://stackoverflow.com/questions/21820444/nginx-error-13-permission-denied-while-connecting-to-upstream">nginx-error-13-permission-denied-while-connecting-to-upstream</a></p>
+<p>除了权限以外还有可能是Selinux
+<code>setsebool -P httpd_can_network_connect 1</code></p>
+<h2 id="参考文章">参考文章</h2>
+<p><a href="https://blog.csdn.net/trackle400/article/details/52755571">虚拟机下CentOS7开启SSH连接</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Webpack注入内联样式及脚本]]></title>
+        <id>https://Leon2xiaowu.github.io/post/webpack-zhu-ru-nei-lian-yang-shi-ji-jiao-ben</id>
+        <link href="https://Leon2xiaowu.github.io/post/webpack-zhu-ru-nei-lian-yang-shi-ji-jiao-ben">
+        </link>
+        <updated>2018-06-24T01:08:06.000Z</updated>
+        <content type="html"><![CDATA[<p>一般情况下，利用Webpack打包项目会生成一个HTML文件和一个script入口文件。
+在分chunk的时候也会为各个chunk生成不同的script文件，并注入到HTML文件中。</p>
+<p>然而因为业务上的需求，有时会一些很简单的活动页面，利用Webpack打包一个HTML单文件，扔到服务器上就能用，简单粗暴，更新的时候也只要更新一个文件就可以，不必将脚本、样式和HTML分别更新。</p>
+<h2 id="html-webpack-inline-source">html-webpack-inline-source</h2>
+<p><a href="https://www.npmjs.com/package/html-webpack-inline-source-plugin">html-webpack-inline-source-plugin</a>和HtmlWebpackPlugin插件配合，可以将打包生成的文件注入为行内样式和行内脚本。</p>
+<h2 id="使用">使用</h2>
+<p>通过npm安装html-webpack-inline-source
+<code>npm install --save-dev html-webpack-inline-source-plugin</code></p>
+<p>在Webpack的plugins中进行配置</p>
+<pre><code class="language-javascript">const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+
+// Webpack config
+plugins: [
+  new HtmlWebpackPlugin(),
+  new HtmlWebpackInlineSourcePlugin()
+]  
+</code></pre>
+<p>ennnnn其实上面上面这样配置插件不会做任何事情去注入行内脚本和样式, 需要在HtmlWebpackPlugin中告诉它哪些东西需要注入行内。</p>
+<pre><code class="language-javascript">plugins: [
+  new HtmlWebpackPlugin({
+        inlineSource: '.(js|css)$' // embed all javascript and css inline
+    }),
+  new HtmlWebpackInlineSourcePlugin()
+] 
+</code></pre>
+<p>这样在我们最后build的时候index.html中就会包含行内样式和脚本。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CentOs7_通过RPM安装Python3]]></title>
+        <id>https://Leon2xiaowu.github.io/post/centos7_-tong-guo-rpm-an-zhuang-python3</id>
+        <link href="https://Leon2xiaowu.github.io/post/centos7_-tong-guo-rpm-an-zhuang-python3">
+        </link>
+        <updated>2018-06-24T01:08:06.000Z</updated>
+        <content type="html"><![CDATA[<ol>
+<li>
+<p>安装IUS社区软件源
+<code>yum -y install https://centos7.iuscommunity.org/ius-release.rpm</code></p>
+</li>
+<li>
+<p>安装</p>
+</li>
+</ol>
+<pre><code>➜  yum makecache
+➜  yum install python36u
+➜  yum -y install python36u-pip
+➜  yum -y install python36u-devel
+</code></pre>
+<ol start="3">
+<li>更改shell命令</li>
+</ol>
+<p><code>sudo ln -s /bin/python3.6 /bin/python3</code>
+<code>sudo ln -s /bin/pip3.6 /bin/pip3</code></p>
 ]]></content>
     </entry>
 </feed>

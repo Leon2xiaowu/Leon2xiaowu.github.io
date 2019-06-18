@@ -1,0 +1,181 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WebGL入门-Part2 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              WebGL入门-Part2
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-08-18 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/AhBYQz1_9" class="post-tag">
+                  # WebGL
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/webgl-ru-men-part2.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p><a href="https://blog.normaldev.app/2018/08/17/WebGl%E5%85%A5%E9%97%A8-1/">WebGL入门-Part1</a> 中介绍了一些基本概念，接着我们来用WebGL画点东西，熟悉绘制WebGL的基本流程。</p>
+<h2 id="获取上下文环境">获取上下文环境</h2>
+<p>WebGL的绘制也是在<code>&lt;canvas&gt;</code>标签的基础上进行绘制的，第一步也是创建CanvasDom并获取其WebGL的上下文。</p>
+<pre><code class="language-javascript">const canvas = document.querySelector('#J_canvas');
+// 在不同浏览器环境下
+// context可能对应着不同的值 [&quot;webgl&quot;, &quot;experimental-webgl&quot;, &quot;webkit-3d&quot;, &quot;moz-webgl&quot;]
+const gl = canvas.getContext('webgl');
+</code></pre>
+<h2 id="定义着色器">定义着色器</h2>
+<p>WebGL必须要使用着色器进行绘制，我们要用 GLSL ES 定义顶点着色器和片元着色器。</p>
+<p>我们先定义分别定义顶点、片元着色器，绘制一个点。</p>
+<p>着色器语言1均表示的最高值，-1就是最小值。</p>
+<h3 id="顶点着色器">顶点着色器</h3>
+<p>每个着色器都有一个main函数。</p>
+<pre><code class="language-c">void main() {
+  gl_Position = vec4(1.0, 1.0, 0.0, 1.0); // 描述点的位置
+  gl_PointSize = 10.0; // 点的大小
+}
+</code></pre>
+<h3 id="片元着色器">片元着色器</h3>
+<pre><code class="language-c">void main() {
+    // vec4(R, G, B, A) 1就表示R的值为最高也就相当于颜色RGBA(255, 0, 0, 1);
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // 点的颜色
+}
+</code></pre>
+<h2 id="初始化着色器">初始化着色器</h2>
+<p>这里我们先使用辅助函数<code>initShaders(gl, vshader, fshader)</code>初始化着色器，后面我们会详细讲解其内部实现。</p>
+<h2 id="清空绘制区域">清空绘制区域</h2>
+<p>在绘制之前我们可以先清空绘制区域</p>
+<p><code>gl.clearColor(0.0, 1.0, 0.0, 0.5);</code>设置清空背景的填充色</p>
+<p><code>gl.clear(buffer);</code> 执行清空</p>
+<p>buffer指的是缓冲区，执行清空其实就是将指定缓冲区设为给定的值。</p>
+<p>取值有以下三种类型</p>
+<ul>
+<li>gl.COLOR_BUFFER_BIT  颜色缓冲区</li>
+<li>gl.DEPTH_BUFFER_BIT 深度缓冲区</li>
+<li>gl.STENCIL_BUFFER_BIT 模板缓冲区</li>
+</ul>
+<p>通过<code>gl.clear(gl.COLOR_BUFFER_BIT)</code>将颜色缓冲区设为我们给定的色值。</p>
+<p><code>gl.clear(buffer | buffer)</code>可以指定多个缓冲区.</p>
+<p>💡如果清空的颜色不变，则没有必要重复设置clearColor。</p>
+<h2 id="绘制">绘制</h2>
+<p>通过<code>drawArrays(mode, first, count)</code>进行绘制。</p>
+<p>first - 表示从哪个定带你开始绘制</p>
+<p>count - 表示要此次绘制需要用到多少个顶点</p>
+<p>mode告诉WebGL以哪种方式进行绘制，有以下几种方式，可以分别尝试一下。</p>
+<p>🤷‍♂️不过，我们目前只有一个顶点，除了Point其他也画不了。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fudrhjys1rj212e0lugtc.jpg" alt="绘制方式"></p>
+<p>通过<code>gl.drawArrays(glCtx.POINTS, 0, 1);</code>绘制一个点.</p>
+<p>⚠️drawArrays绘制后会清空缓冲区，上一步clear背景色变成默认的透明，如果还需要背景色，需要再一次<code>gl.clear();</code></p>
+<p>💡<a href="https://jsbin.com/vasepolexu/2/edit?html,js,output">这里是DEMO</a></p>
+<p>试着改变着色器中的各个参数会发生什么吧。</p>
+<p><a href="https://blog.normaldev.app/2018/08/21/WebGL%E5%85%A5%E9%97%A8-3/">To Be Continue ✍️ 向着色器传递参数 &gt;&gt;&gt;</a></p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part1">
+              <h3 class="post-title">
+                WebGL入门-Part1
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

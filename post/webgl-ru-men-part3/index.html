@@ -1,0 +1,261 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WebGL入门-Part3 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              WebGL入门-Part3
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-08-21 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/AhBYQz1_9" class="post-tag">
+                  # WebGL
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+            <div class="post-content">
+              <p><a href="https://blog.normaldev.app/2018/08/18/WebGL%E5%85%A5%E9%97%A8-2/">Part2</a>中 写了个简单的着色器在画布中绘制了一个点，接下来 通过向着色器传递参数的形式去绘制，同时利用缓冲区一次传递多个参数。</p>
+<p>有两种方式能够用来传递参数：<strong>attribute变量</strong> 和 <strong>uniform变量</strong>.</p>
+<p>attribute用来传输与顶点相关的数据，uniform则与之相反，传递的是通用的数据（与顶点无关的）。</p>
+<h2 id="声明变量">声明变量</h2>
+<p>在着色器中声明attribute和uniform变量后， 可以通过JavaScript传递给着色器。</p>
+<p>声明变量的格式：**「存储限定符」「类型」「变量名」 **</p>
+<p>顶点着色器</p>
+<pre><code class="language-c">attribute vec4 aPosition; // 通过attribute 声明变量
+void main() {
+	gl_Position = aPosition;
+    gl_PointSize = 10.0;
+}
+</code></pre>
+<p>片元着色器</p>
+<pre><code class="language-c">precision mediump float; // 精度限定符
+uniform vec4 uColor; // 通过 uniform 声明变量
+void main() {
+	gl_FragColor = uColor;
+}
+</code></pre>
+<h2 id="获取变量地址">获取变量地址</h2>
+<p>向WebGL获取某个变量的地址、JS通过给这个地址赋值从而将值传递给着色器。</p>
+<h3 id="获取attribute变量">获取attribute变量</h3>
+<p>getAttribLocation方法接收两个参数：</p>
+<ul>
+<li>gl.program是WebGL的program对象，只有在初始化（通过 的工具方法<code>initShaders()</code>）后才能获取到。</li>
+<li>第二个参数是变量名，也就是你在着色器中定义的变量名称。</li>
+</ul>
+<p>Return：</p>
+<ul>
+<li>✅成功正确获取的地址为 &gt;= 0 的值。</li>
+<li>❌获取失败返回结果为**-1**</li>
+</ul>
+<p><code>const aPosition = gl.getAttribLocation(gl.program, 'aPosition');</code></p>
+<h3 id="获取uniform变量">获取uniform变量</h3>
+<p>getUniformLocation方法同getAttribLocation方法一样，接收两个参数。</p>
+<p>Return：</p>
+<ul>
+<li>✅非null值；表示获取成功</li>
+<li>❌null值；表示获取失败</li>
+</ul>
+<p><code>const uColor = gl.getUniformLocation(gl.program, 'uColor');</code></p>
+<h2 id="赋值">赋值</h2>
+<p>分别拿到了变量的地址，然后就可以向着色器传递参数。</p>
+<h3 id="向attribute传参">向attribute传参</h3>
+<p><code>gl.vertexAttrib[1234]f()</code>向attribute传递参数，这是一个系列函数，[1234]分别对应四个函数。</p>
+<pre><code class="language-javascript">void gl.vertexAttrib1f(location, v0);
+void gl.vertexAttrib2f(location, v0, v1);
+void gl.vertexAttrib3f(location, v0, v1, v2);
+void gl.vertexAttrib4f(location, v0, v1, v2, v3);
+</code></pre>
+<p>第一个参数为上一步所获取到的着色器变量的地址，后面为需要传递的值。</p>
+<p><code>gl.vertexAttrib4f(aPosition, 0.0, 0.5, 0.0, 0.0);</code> 向aPosition传递一个位于(0.0, 0.5, 0.0, 0.0)的点。</p>
+<h3 id="向uniform传参">向uniform传参</h3>
+<p><code>gl.uniform[1234]f</code>向uniform传参，同样这也是一个系列函数。</p>
+<p>接收的参数也和<code>vertexAttrib</code>方法一样。</p>
+<p><code>gl.uniform4f(uColor, 1.0, 0.0, 0.0, 0.0);</code> 向片元着色器传递一个红颜色。</p>
+<p>💡<a href="https://jsbin.com/fivuxixipi/edit?html,js,output">传递参数给着色器_DEMO</a></p>
+<h2 id="buffer缓冲区传递参数">Buffer缓冲区传递参数</h2>
+<p>在上面的例子中， 只是笨拙的向着色器传递单个参数，当 需要一次根据多个Position进行绘制时就需要一次传递多个参数给着色器。</p>
+<p>接下来 通过缓冲区向着色器传递多个参数。</p>
+<h3 id="创建缓冲区对象">创建缓冲区对象</h3>
+<p><code>gl.createBuffer()</code>创建缓冲区对象</p>
+<p><code>gl.deleteBuffer(buffer)</code>可以用来删除已有的缓冲区对象</p>
+<h3 id="绑定缓冲区">绑定缓冲区</h3>
+<p><code>gl.bindBuffer(target, buffer)</code>  将创建的缓冲区对象buffer绑定到目标区域。</p>
+<p>target参数可以是下面其中之一：</p>
+<ul>
+<li>gl.ARRAY_BUFFER ——表示缓冲区对象中包含顶点的数据</li>
+<li>gl.ELEMENT_ARRAY_BUFFER —— 表示缓冲区对象包含了顶点的索引值</li>
+</ul>
+<h3 id="写入数据到缓冲区">写入数据到缓冲区</h3>
+<p>因为数据不能直接写入缓冲区，所以需要通过上一步，将缓冲区和Target进行绑定，接下来通过<code>gl.bufferData(target, vertices, usage)</code>将数据写入『目标』。</p>
+<h4 id="类型化数组">类型化数组</h4>
+<p>有一种特殊的数组，其中的元素都是同一种类型， 称之为类型化数组。</p>
+<p>有下面几种类型</p>
+<ul>
+<li>Int[8|16|32]Array —— [8|16|32]位整型数组</li>
+<li>UInt[8|16|32]Array —— [8|16|32]位无符号整型数组</li>
+<li>Float[32|64]Array —— 单、双精度[32|64]位浮点数</li>
+</ul>
+<pre><code class="language-javascript">const vertices = new Float32Array([
+    0.0, 0.5,
+    -0.5, -0.5,
+    0.5, -0.5,
+]);
+</code></pre>
+<p>定义写入缓冲区的数据</p>
+<h4 id="usage">USAGE</h4>
+<p>usage表示程序如何使用存储在缓冲区对象中的数据，可以帮助WebGL优化操作，就算传错了也不会异常，仅仅可能降低了运行效率。</p>
+<p>有以下三个取值：</p>
+<ul>
+<li>gl.STATIC_DRAW ——向缓冲区对象写入一次数据，但需要绘制很多次</li>
+<li>gl.STREAM_DRAW ——向缓冲区对象写入一次数据，绘制若干次</li>
+<li>gl.DYNAMIC_DRAW ——写入多次数据、绘制很多次</li>
+</ul>
+<p>了解这些 就可以通过<code>gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)</code>将数据写入缓冲区对象。</p>
+<h3 id="分配缓冲区对象给attribute">分配缓冲区对象给attribute</h3>
+<p>前面 通过系列函数给attribute和uniform传递参数，这些方法一次只能传递一个值</p>
+<p><code>gl.vertexAttribPointer(location, size, type, normalize, stride, offset)</code>可以将整个缓冲区对象分配给attribute。</p>
+<ul>
+<li>location —— 前面获取到的attribute的地址</li>
+<li>size —— 表示每个顶点的所需要的的分量个数</li>
+<li>tyle —— 指定数据格式</li>
+<li>normalize —— true or false，表示是否将非浮点数的数据规划到[0, 1] 或者 [-1 ,1]</li>
+<li>stride —— 相邻结点间的字符数</li>
+<li>offset —— 数据的偏移量</li>
+</ul>
+<p>有几个参数还是挺抽象的，看个🌰</p>
+<p>假设需要通过一个buffer，分配給两个不同的attribute， 可以这样操作。</p>
+<pre><code class="language-javascript">// 定义一个Array分别描述点的位置和颜色 
+const muitVertices = new Float32Array([
+  	// 描述点		描述颜色
+    0.0, -0.5, 1.0, 0.0, 0.1,
+    0.5, -0.5, 0.0, 1.0, 0.1,
+]);
+const FSIZE = muitVertices.BYTES_PER_ELEMENT;
+// 写入缓冲区
+// ... 
+// 分配缓冲区对象給位置attribute  aPosition
+// stride为5可以理解为每5个元素为一组数据
+// size为2，offset为0 意味着aPosition 需要用到 一组数据（就是5个元素）中的前两个
+gl.vertexAttribPointer(aPositionLocation, 2, gl.FLOAT, false, 5 * FSIZE, 0);
+// 分配缓冲区对象給颜色attribute aColor
+// size为3，offset为2 意味着aColor 需要用到 一组数据（就是5个元素）中去掉前两个(偏移量)的后三个
+gl.vertexAttribPointer(aColorLocation, 3, gl.FLOAT, false, 5 * FSIZE, 2 * FSIZE);
+</code></pre>
+<h3 id="开启attribute对象">开启attribute对象</h3>
+<p>为了能够让着色器访问缓冲区内的数据， 需要使用<code>gl.enableVertexAttribArray(location)</code>来开启对应的attribute对象。</p>
+<h3 id="绘制">绘制</h3>
+<p>接着 就可以通过<code>gl.drawArrays(type, start, count)</code>来绘制了，此时 还能通过改变第二、三个参数来绘制不同的形状了。</p>
+<p>第一个参数是绘制的类型，<a href="https://blog.normaldev.app/2018/08/18/WebGL%E5%85%A5%E9%97%A8-2/">Part-2</a>中有讲到 ，可以自行尝试更改。</p>
+<p>start表示从第几个attribute开始绘制</p>
+<p>count表示从start开始绘制几个点</p>
+<p>⚠️ start + count &lt;= 总数</p>
+<p>💡<a href="https://jsbin.com/gegatifawa/edit?html,js,output">DEMO</a></p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part2">
+              <h3 class="post-title">
+                WebGL入门-Part2
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

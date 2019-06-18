@@ -1,0 +1,175 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>微信H5获取iBeacons设备信息 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              微信H5获取iBeacons设备信息
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-06-05 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/wei-xin-h5-huo-qu-ibeacons-she-bei-xin-xi.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <h2 id="前提条件">前提条件</h2>
+<ol>
+<li>公众号申请开通摇一摇周边</li>
+<li>添加设备并激活对应设备</li>
+<li>拿到设备的一系列参数</li>
+</ol>
+<p>设备信息类似于：
+请将下表的UUID、Major、Minor信息配置至iBeacon设备，其中，major、minor为10进制。</p>
+<table>
+<thead>
+<tr>
+<th>部署设备</th>
+<th>设备ID</th>
+<th>UUID</th>
+<th>major值</th>
+<th>minor值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>设备zero</td>
+<td>3214551</td>
+<td>FDA15795-A3E2-4FB1-DEWF-C6EB07154725</td>
+<td>10100</td>
+<td>44511</td>
+</tr>
+</tbody>
+</table>
+<p>1、2是前提条件，不满足API不会有任何反应
+3 是后续会用到的参数，让PM弄好了给你，如果你自己就是PM就在公众号里找找，可以导出对应Excel</p>
+<h2 id="获取beacon信息">获取beacon信息</h2>
+<p><a href="https://mp.weixin.qq.com/wiki?t=resource/res_main&amp;id=mp1443448133">H5页面获取设备信息 JS API</a></p>
+<p>微信提供了开启、监听、关闭三个Beacon对应的接口。
+在开始查找之前还需要将设备添加至对应分组，否则<code>onSearchBeacons</code>不会有任何反应、不进入任何回调</p>
+<h3 id="添加beacon至分组">添加beacon至分组</h3>
+<p>根据文档-(新增分组)[https://mp.weixin.qq.com/wiki?t=resource/res_main&amp;id=mp1459330208]</p>
+<p>然后将步骤3中的设备加到分组中，<code>onSearchBeacons</code>只能监听位于分组中的beacon设备</p>
+<h3 id="监听beacons">监听beacons</h3>
+<p>监听周边beacon前需要执行<code>startSearchBeacons</code>开启查找beacon</p>
+<p>接着在成功回调中执行<code>onSearchBeacons</code>监听周围的beacon设备</p>
+<h4 id="没反应的原因">没反应的原因</h4>
+<p>在开发过程中遇到的没有反应的原因有以下几种</p>
+<ol>
+<li>设备不在分组中</li>
+<li>公众号没有添加设备</li>
+<li>对应beacon设备没有绑定当前页面的URL</li>
+<li>注册微信SDK的公众号和添加设备的公众号不一致</li>
+</ol>
+<h2 id="关闭beacon搜索">关闭beacon搜索</h2>
+<p>开启<code>startSearchBeacons</code>后，微信中关闭网页并不会自动stopSearchBeacons。
+只能手动执行<code>stopSearchBeacons</code>关闭，可添加<code>beforeunload</code> listener在页面卸载前手动关闭</p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/centos_7-bu-shu-nginx-fu-wu">
+              <h3 class="post-title">
+                CentOS_7部署Nginx服务
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

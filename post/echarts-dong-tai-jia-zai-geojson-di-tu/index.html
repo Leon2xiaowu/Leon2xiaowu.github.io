@@ -1,0 +1,153 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Echarts动态加载GeoJSON地图 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560865458058">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560865458058" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Echarts动态加载GeoJSON地图
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-10-18 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/echarts-dong-tai-jia-zai-geojson-di-tu.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <h2 id="echarts监听geo地图缩放比例">Echarts监听GEO地图缩放比例</h2>
+<pre><code class="language-javascript">myChart.on('georoam', function() {
+    //  console.log(arguments);
+    // 回调函数自带的res中zoom永远都是1.1
+    console.log(myChart.getOption().geo[0].zoom);
+})
+</code></pre>
+<h2 id="按需加载geojson">按需加载GEOJSON</h2>
+<p>某个需求要求的是点亮用户去过的地方，国内到城市、国外精确到州。</p>
+<p>在Echarts官方仓库中找到<a href="https://github.com/pissang/starbucks"><strong>starbucks</strong></a>，内含各个州的GEO数据。</p>
+<p>直觉告诉我只要拼起来就能实现word数据中包含所有州的信息。</p>
+<h3 id="geojson">GEOJSON</h3>
+<p><a href="https://www.oschina.net/translate/geojson-spec?lang=chs&amp;page=1#">格式规范说明</a></p>
+<p><img src="https://i.loli.net/2018/05/30/5b0e443bb5e1e.png" alt="carbon.png"></p>
+<p>大致就是这样一个结构、具体的键值含义规范中有说明。<code>features</code>数组中的每一个对象都描述的是<strong>一块区域</strong>。那么把<code>world.json</code>里缺失的更细颗粒度的区域也加进来就ojbk了。</p>
+<h3 id="多余的key">多余的key</h3>
+<p>上面结构多了<code>UTF8Encoding</code> <code>encodeOffsets</code> <code>name</code> 这几个key，在格式规范中不是必须的，看了下<code>Echarts</code>处理JSON部分的源码是有用到的，用于decode JSON文件。</p>
+<h3 id="拼接">拼接</h3>
+<p>起初直接将两个JSON对象的<code>features</code>进行合并<code>world.features.concat(china.features)</code></p>
+<p>失败了，合出来的JSON虽然符合规范，但是并不正确，渲染出来严重畸形。</p>
+<p><img src="https://i.loli.net/2018/05/30/5b0e47c808ca9.png" alt="什么鬼(#`O′)"></p>
+<p>经过对比，<code>world.json</code>中的<code>coordinates</code>字段为经纬度，<code>china.json</code>中则为Encode处理后的经纬度。</p>
+<p>Debug源码发现由<code>UTF8Encoding</code>控制是否对JSON内容进行Decode，于是给合并后的JSON数据加上<code>UTF8Encoding = true</code>，然后又失败了。</p>
+<p>控制台抛出异常：<code>Invalid geoJson format; coordinate.charCodeAt is not a function</code></p>
+<p>喵喵喵??  decode完就格式就不对了...
+Debug源码找到原因，<code>UTF8Encoding</code>为true开启decode后，对整个list进行decode操作，decode操作又要用到<code>encodeOffsets</code>，<code>world.json</code>没有这个key，所以就嗝屁了。</p>
+<p>在拼接JSON前先把JSON给decode好，不就没问题了么，试了一下果然搞定了。</p>
+<h3 id="看个效果">看个效果</h3>
+<p><img src="https://i.loli.net/2018/06/02/5b122a8887373.gif" alt="Jun-02-2018 13-25-09.gif"></p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/webgl-xuan-ran-tou-ming-shi-pin">
+              <h3 class="post-title">
+                WebGL渲染透明视频
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
