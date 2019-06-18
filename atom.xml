@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Leon2xiaowu.github.io</id>
     <title>普通程序员的博客</title>
-    <updated>2019-06-18T13:47:29.918Z</updated>
+    <updated>2019-06-18T13:59:34.105Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Leon2xiaowu.github.io"/>
     <link rel="self" href="https://Leon2xiaowu.github.io/atom.xml"/>
@@ -121,7 +121,7 @@ Debug源码找到原因，<code>UTF8Encoding</code>为true开启decode后，对�
         <link href="https://Leon2xiaowu.github.io/post/webgl-xuan-ran-tou-ming-shi-pin">
         </link>
         <updated>2018-09-14T15:20:20.000Z</updated>
-        <content type="html"><![CDATA[<p>WebGL也好OpenGL也好都是挺复杂的东西, 上回<a href="https://blog.normaldev.app/2018/08/25/WebGL%E5%85%A5%E9%97%A8-4/">Part4</a>渲染的透明图片也比较糙,.</p>
+        <content type="html"><![CDATA[<p>WebGL也好OpenGL也好都是挺复杂的东西, 上回<a href="https://leon2xiaowu.github.io/post/webgl-ru-men-part4/">Part4</a>渲染的透明图片也比较糙,.</p>
 <p>本来这次了解WebGL的目的是为了某个类似于在地图上呈现天气那种效果的需求, 最终目的是为了实现带有Alpha通道的视频效果, 这次通过这样一个DEMO也大致的实现了, 在<code>Chrome 69.0.3497.92</code>以及<code>iOS 12 GM</code>上的Safari和微信内置浏览器下测试通过.</p>
 <p>主要是以下几点</p>
 <ol>
@@ -311,7 +311,7 @@ img.src = 'https://..img url';
         <link href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part3">
         </link>
         <updated>2018-08-21T13:52:46.000Z</updated>
-        <content type="html"><![CDATA[<p><a href="https://blog.normaldev.app/2018/08/18/WebGL%E5%85%A5%E9%97%A8-2/">Part2</a>中 写了个简单的着色器在画布中绘制了一个点，接下来 通过向着色器传递参数的形式去绘制，同时利用缓冲区一次传递多个参数。</p>
+        <content type="html"><![CDATA[<p><a href="https://leon2xiaowu.github.io/post/webgl-ru-men-part2/">Part2</a>中 写了个简单的着色器在画布中绘制了一个点，接下来 通过向着色器传递参数的形式去绘制，同时利用缓冲区一次传递多个参数。</p>
 <p>有两种方式能够用来传递参数：<strong>attribute变量</strong> 和 <strong>uniform变量</strong>.</p>
 <p>attribute用来传输与顶点相关的数据，uniform则与之相反，传递的是通用的数据（与顶点无关的）。</p>
 <h2 id="声明变量">声明变量</h2>
@@ -455,7 +455,7 @@ gl.vertexAttribPointer(aColorLocation, 3, gl.FLOAT, false, 5 * FSIZE, 2 * FSIZE)
         <link href="https://Leon2xiaowu.github.io/post/webgl-ru-men-part2">
         </link>
         <updated>2018-08-18T03:49:13.000Z</updated>
-        <content type="html"><![CDATA[<p><a href="https://blog.normaldev.app/2018/08/17/WebGl%E5%85%A5%E9%97%A8-1/">WebGL入门-Part1</a> 中介绍了一些基本概念，接着我们来用WebGL画点东西，熟悉绘制WebGL的基本流程。</p>
+        <content type="html"><![CDATA[<p><a href="https://leon2xiaowu.github.io/post/webgl-ru-men-part1/">WebGL入门-Part1</a> 中介绍了一些基本概念，接着我们来用WebGL画点东西，熟悉绘制WebGL的基本流程。</p>
 <h2 id="获取上下文环境">获取上下文环境</h2>
 <p>WebGL的绘制也是在<code>&lt;canvas&gt;</code>标签的基础上进行绘制的，第一步也是创建CanvasDom并获取其WebGL的上下文。</p>
 <pre><code class="language-javascript">const canvas = document.querySelector('#J_canvas');
