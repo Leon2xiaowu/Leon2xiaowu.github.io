@@ -1,0 +1,386 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>H5实现图片中英文翻译 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1560867619738">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1560867619738" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              H5实现图片中英文翻译
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2018-01-18 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/h5-shi-xian-tu-pian-zhong-ying-wen-fan-yi.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>基于百度提供的翻译Api，将图片以Base64上传后获取翻译结果以及高亮区域进行绘制显示。</p>
+<p><img src="https://ws1.sinaimg.cn/large/e908d83ely1g45o4m3twhj20bf0kdabi.jpg" alt=""></p>
+<h2 id="html5唤起camera">HTML5唤起Camera</h2>
+<h3 id="webcamjs"><a href="https://github.com/jhuckaby/webcamjs/blob/master/DOCS.md">webcamjs</a></h3>
+<p>基于<a href="http://dev.w3.org/2011/webrtc/editor/getusermedia.html">HTML5 getUserMedia</a>的一个库</p>
+<p>存在的问题：</p>
+<ol>
+<li>兼容性较差</li>
+<li>大部分Android机型无法切换摄像头，往往都是前置的摄像头(还没找到解决方案)</li>
+</ol>
+<blockquote>
+<p>兼容性差，弃了。用下面的老办法</p>
+</blockquote>
+<h3 id="input标签实现">Input标签实现</h3>
+<p>通过input标签的<a href="https://w3c.github.io/html-media-capture/#the-capture-attribute">capture</a>属性，唤起摄像头。浏览器支持capture属性时，能直接唤起摄像头，不支持的时候会让用户选择</p>
+<pre><code class="language-html">&lt;input type=&quot;file&quot; id=&quot;J_camera&quot; capture=&quot;camera&quot;&gt;
+</code></pre>
+<p>唤起相册</p>
+<pre><code class="language-html">&lt;input type=&quot;file&quot; id=&quot;J_album&quot; accept=&quot;image/*&quot;&gt;
+</code></pre>
+<h2 id="获取用户拍摄的照片">获取用户拍摄的照片</h2>
+<p>监听input的input的change事件</p>
+<p><code>input.addEventListener('change', handleFunc)</code></p>
+<p>利用FileReader读取input中的文件</p>
+<pre><code class="language-javascript">var handleFunc = function (evt) {
+  var reader = new FileReader();
+    reader.readAsDataURL(this.files[0]);
+    reader.onload = function (oFREvent) {
+    // 拿到照片的Base64位地址
+    var dataUrl = oFREvent.target.result
+    // 爱怎么处理怎么处理
+    processPhoto(dataUrl)
+  };
+}
+</code></pre>
+<h2 id="处理图片">处理图片</h2>
+<h3 id="图片压缩">图片压缩</h3>
+<p>iPhone拍摄的照片都比较大，10M以上是很正常的。但是百度的Api仅支持4M以下的图片。</p>
+<p>利用<code>Canvas</code>重绘调整原图分辨率并保持比例以达到压缩的效果。</p>
+<p>建议将图片的 宽调整为屏幕宽度的n倍，保持宽高比。如果直接调整到屏幕宽度，<a href="https://github.com/jawil/blog/issues/21">设备像素比</a>高的设备上会显得很模糊。</p>
+<pre><code class="language-javascript">function processPhoto(srcBase64, callback) {
+    var img = new Image(),
+        // 将最大宽高设为容器的2倍
+        maxW = photoWrap.width() * 2,
+        maxH = photoWrap.height() * 2
+    var canvas = document.createElement('canvas'),
+        ctx = canvas.getContext(&quot;2d&quot;);
+  
+    img.onload = function () {
+        var ratio;
+      
+        ratio = maxW / img.width
+        img.height *= ratio;
+        img.width = maxW
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+      
+        var imgUrl = canvas.toDataURL('image/jpeg')
+        callback(imgUrl, canvas);
+    };
+};
+</code></pre>
+<h3 id="exif正确识别">EXIF正确识别</h3>
+<p>iPhone拍摄的照片直接src显示是没问题的，如果经过canvas压缩过后会出现颠倒的情况。</p>
+<p>是</p>
+<p>贴一个stackoverflow的问题</p>
+<p><a href="https://stackoverflow.com/questions/20600800/js-client-side-exif-orientation-rotate-and-mirror-jpeg-images">JS Client-Side Exif Orientation: Rotate and Mirror JPEG Images</a></p>
+<p>我的解决方案：</p>
+<p>使用<a href="https://github.com/exif-js/exif-js">exif-js</a>识别<code>srcOrientation</code>,结合上面问题中<a href="https://stackoverflow.com/users/7225515/wunderbart">WunderBart</a>的方法，在压缩图片的同时对图片进行rotate</p>
+<p>参考文章：</p>
+<p><a href="http://feihu.me/blog/2015/how-to-handle-image-orientation-on-iOS/">如何处理iOS中照片的方向</a></p>
+<pre><code class="language-javascript">function processPhoto(srcBase64, callback) {
+    var img = new Image(),
+        maxW = photoWrap.width() * 2,
+        maxH = photoWrap.height() * 2
+    var exif;
+
+    var canvas = document.createElement('canvas'),
+        ctx = canvas.getContext(&quot;2d&quot;);
+
+    var rotate = function (width, height) {
+        switch (exif.Orientation) {
+            case 2:
+                ctx.transform(-1, 0, 0, 1, width, 0);
+                break;
+            case 3:
+                ctx.transform(-1, 0, 0, -1, width, height);
+                break;
+            case 4:
+                ctx.transform(1, 0, 0, -1, 0, height);
+                break;
+            case 5:
+                ctx.transform(0, 1, 1, 0, 0, 0);
+                break;
+            case 6:
+                ctx.transform(0, 1, -1, 0, height, 0);
+                break;
+            case 7:
+                ctx.transform(0, -1, -1, 0, height, width);
+                break;
+            case 8:
+                ctx.transform(0, -1, 1, 0, 0, width);
+                break;
+            default:
+                break;
+        }
+    }
+
+    img.onload = function () {
+        var ratio;
+        if (4 &lt; exif.Orientation &amp;&amp; exif.Orientation &lt; 9) {
+            ratio = maxW / img.height
+            img.width = img.width * ratio
+            img.height = maxW
+            canvas.width = img.height;
+            canvas.height = img.width;
+        } else {
+            ratio = maxW / img.width
+            img.height *= ratio;
+            img.width = maxW
+            canvas.width = img.width;
+            canvas.height = img.height;
+        }
+
+        var width = img.width,
+            height = img.height;
+
+        rotate(width, height);
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        var imgUrl = canvas.toDataURL('image/jpeg')
+        callback(imgUrl, canvas);
+    };
+
+    var handle = function () {
+        exif = EXIF.readFromBinaryFile(base64ToArrayBuffer(srcBase64));
+        img.src = srcBase64;
+    }
+    if (window.EXIF) {
+        handle()
+    } else {
+        loadRequireScript(handle)
+    }
+};
+</code></pre>
+<h2 id="翻译原文高亮绘制镂空蒙层">翻译原文高亮——绘制镂空蒙层</h2>
+<blockquote>
+<p>尝试了多种实现方式，Svg和Canvas都能实现多镂空的蒙层，在截图的时候由于svg支持不佳最后采用了Canvas方案</p>
+</blockquote>
+<h3 id="单镂空蒙层">单镂空蒙层</h3>
+<p>利用<code>css3</code>可实现单点镂空蒙层，原理就是给镂空的Dom节点设置<code>border</code>或者是<code>shadow</code>来实现效果</p>
+<h3 id="多镂空蒙层">多镂空蒙层</h3>
+<ul>
+<li>基于svg的实现</li>
+</ul>
+<pre><code class="language-html">&lt;svg style=&quot;position: absolute;&quot; width=&quot;1366&quot; height=&quot;700&quot;&gt;  
+  &lt;defs&gt;  
+    &lt;mask id=&quot;myMask&quot;&gt;  
+      &lt;rect x=&quot;0&quot; y=&quot;0&quot; width=&quot;100%&quot; height=&quot;100%&quot; style=&quot;stroke:none; fill: #ccc&quot;&gt;&lt;/rect&gt;  
+      &lt;rect id=&quot;circle1&quot; width=&quot;170&quot; height=&quot;190&quot; x='208' y=&quot;260&quot; style=&quot;fill: #000&quot; /&gt;  
+    &lt;/mask&gt;  
+  &lt;/defs&gt;  
+  &lt;rect x=&quot;0&quot; y=&quot;0&quot; width=&quot;100%&quot; height=&quot;100%&quot; style=&quot;stroke: none; fill: rgba(0, 0, 0, 0.6); mask: url(#myMask)&quot;&gt;&lt;/rect&gt;  
+&lt;/svg&gt;
+</code></pre>
+<ul>
+<li>Canvas实现</li>
+</ul>
+<p>使用<code>globalCompositeOperation</code>属性绘制镂空的蒙层</p>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Compositing">globalCompositeOperation</a></p>
+<p>Step 1 准备一个背景图片，以及一个canvas遮罩元素</p>
+<pre><code class="language-html">&lt;div class=&quot;photo-wrap full-width&quot; id=&quot;J_translateRelice&quot;&gt;
+  &lt;img class=&quot;camera-result&quot; id=&quot;J_cameraResult&quot;&gt;
+  &lt;canvas class=&quot;camera-mask&quot; id=&quot;J_cameraMask&quot;&gt;覆盖在img上&lt;/canvas&gt;
+&lt;/div&gt;
+</code></pre>
+<p>Step 2 绘制遮罩层背景</p>
+<pre><code class="language-javascript">var mask = document.createElement('canvas')
+var ctx = mask.getContext(&quot;2d&quot;);
+
+var drawBg = function (background) {
+  // 解决canvas模糊 start
+  var devicePixelRatio = window.devicePixelRatio || 1,
+      backingStoreRatio = ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1,
+      ratio = devicePixelRatio / backingStoreRatio;
+
+  var oldWidth = cameraResult.width;
+  var oldHeight = cameraResult.height;
+  mask.width = oldWidth * ratio;
+  mask.height = oldHeight * ratio;
+  mask.style.width = oldWidth + 'px';
+  mask.style.height = oldHeight + 'px';
+  ctx.scale(ratio, ratio);
+  // 解决canvas模糊 end
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = '#000';
+  // 先给整个容器画一个矩形做背景
+  ctx.fillRect(0, 0, photoWrap.width(), photoWrap.height());
+}
+</code></pre>
+<p>Step 3 绘制高亮区域</p>
+<pre><code class="language-javascript">var drawBlock = function (option, transResult, index) {
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#fff';
+  // destination-out 将所绘制区域从源图中扣掉并保持透明
+  ctx.globalCompositeOperation = &quot;destination-out&quot;;
+  ctx.fillRect(option.left / r, option.top / r, option.width / r, option.height / r);
+}
+</code></pre>
+<p>Step 4 绘制各个高亮区域的索引</p>
+<pre><code class="language-javascript">var drawIndex = function (option, index) {
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = &quot;#000&quot;;
+  // 覆盖在源图上面
+  ctx.globalCompositeOperation = &quot;source-over&quot;;
+  ctx.fillRect(option.left / r, option.top / r, 12, 12)
+  ctx.fillStyle = '#fff'
+  ctx.font = &quot;9px Arial&quot;;
+  ctx.fillText(index, option.left / r + 3, option.top / r + 10);
+}
+</code></pre>
+<p>DEMO: <a href="https://codepen.io/mdzz/pen/qpEWgK?editors=1100">codepen</a></p>
+<p>参考文章：<a href="http://blog.csdn.net/xjun0812/article/details/51207177">浏览器中遮罩层镂空效果的多种实现方法</a></p>
+<h2 id="截图并保存图片">截图并保存图片</h2>
+<p>前端截图的话实际上就是利用<code>canvas</code>解析Dom和样式层层绘制，不过自己造轮子有点费时费力。</p>
+<p>搜了一下找到两个轮子，<strong><a href="https://github.com/niklasvh/html2canvas">html2canvas</a></strong> <strong><a href="https://github.com/tsayen/dom-to-image">dom-to-image</a></strong></p>
+<p>dom-to-image 不兼容iOS，应该是采取了很讨巧的办法，大小也不足10kb。</p>
+<p>html2canvas截至目前的最新版本是<a href="https://github.com/niklasvh/html2canvas/releases/tag/v1.0.0-alpha.5">v1.0.0-alpha.5</a>，Wiki没有及时更新，还得去issue找正确的使用方法。</p>
+<pre><code class="language-javascript">function drawScreenshot() {
+  var node = document.getElementById('J_translateRelice');
+  var handle = function () {
+    html2canvas(node, {
+      allowTaint: false,
+      // 开启图片跨域
+      useCORS: true,
+      logging: true
+    }).then(function (canvas) {
+      // 截图转换成base64
+      var screenshotDataUrl = canvas.toDataURL('image/png')
+    });
+  }
+  if (window.html2canvas) {
+    handle()
+  } else {
+    loadRequireScript('', handle);
+  }
+}
+</code></pre>
+<h3 id="note">Note：</h3>
+<p>html2canvas 截图没法包含子canvas，导致截图下来只有原图没有遮罩了。</p>
+<p>后来找到了一个相同的<a href="https://github.com/niklasvh/html2canvas/issues/961">issue</a>然而并没有解决方案，最后是将HTML中的canvas改成了img，并将原来的canvas转成dataURL后设置img的src，这样操作截图就完整了。</p>
+<pre><code class="language-html">&lt;div class=&quot;photo-wrap full-width&quot; &gt;
+  &lt;img class=&quot;camera-result&quot; id=&quot;J_cameraResult&quot;&gt;
+  &lt;img class=&quot;camera-mask&quot; id=&quot;J_cameraMask&quot;&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="language-javascript">document.getElementById('J_cameraMask').src = mask.toDataURL('image/png', 1)
+</code></pre>
+<p>另外还有一个诡异的事情，不知it道原因。当我在 DOM的 <code>Click</code>事件中去执行<code>html2canvas</code>截图的时候图片顶部会少掉一部分、底部会多出相应的空白部分。</p>
+<h3 id="保存图片">保存图片</h3>
+<p>将图片存储到相册的话，浏览器自身是没有这种API的，可以通过提示用户长按图片进行保存。</p>
+<p>混合开发的话可以利用native提供的bridge方法</p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/webpack-xue-xi-bi-ji-er">
+              <h3 class="post-title">
+                Webpack学习笔记二
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

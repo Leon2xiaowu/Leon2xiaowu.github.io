@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Leon2xiaowu.github.io</id>
     <title>普通程序员的博客</title>
-    <updated>2019-06-18T13:59:34.105Z</updated>
+    <updated>2019-06-18T14:20:34.378Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Leon2xiaowu.github.io"/>
     <link rel="self" href="https://Leon2xiaowu.github.io/atom.xml"/>
@@ -655,6 +655,33 @@ CentOS中输入<code>ifconfig</code>查看虚拟机的CentOS具体ip
 ]]></content>
     </entry>
     <entry>
+        <title type="html"><![CDATA[CentOs7_通过RPM安装Python3]]></title>
+        <id>https://Leon2xiaowu.github.io/post/centos7_-tong-guo-rpm-an-zhuang-python3</id>
+        <link href="https://Leon2xiaowu.github.io/post/centos7_-tong-guo-rpm-an-zhuang-python3">
+        </link>
+        <updated>2018-06-24T01:08:06.000Z</updated>
+        <content type="html"><![CDATA[<ol>
+<li>
+<p>安装IUS社区软件源
+<code>yum -y install https://centos7.iuscommunity.org/ius-release.rpm</code></p>
+</li>
+<li>
+<p>安装</p>
+</li>
+</ol>
+<pre><code>➜  yum makecache
+➜  yum install python36u
+➜  yum -y install python36u-pip
+➜  yum -y install python36u-devel
+</code></pre>
+<ol start="3">
+<li>更改shell命令</li>
+</ol>
+<p><code>sudo ln -s /bin/python3.6 /bin/python3</code>
+<code>sudo ln -s /bin/pip3.6 /bin/pip3</code></p>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Webpack注入内联样式及脚本]]></title>
         <id>https://Leon2xiaowu.github.io/post/webpack-zhu-ru-nei-lian-yang-shi-ji-jiao-ben</id>
         <link href="https://Leon2xiaowu.github.io/post/webpack-zhu-ru-nei-lian-yang-shi-ji-jiao-ben">
@@ -686,33 +713,6 @@ plugins: [
 ] 
 </code></pre>
 <p>这样在我们最后build的时候index.html中就会包含行内样式和脚本。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[CentOs7_通过RPM安装Python3]]></title>
-        <id>https://Leon2xiaowu.github.io/post/centos7_-tong-guo-rpm-an-zhuang-python3</id>
-        <link href="https://Leon2xiaowu.github.io/post/centos7_-tong-guo-rpm-an-zhuang-python3">
-        </link>
-        <updated>2018-06-24T01:08:06.000Z</updated>
-        <content type="html"><![CDATA[<ol>
-<li>
-<p>安装IUS社区软件源
-<code>yum -y install https://centos7.iuscommunity.org/ius-release.rpm</code></p>
-</li>
-<li>
-<p>安装</p>
-</li>
-</ol>
-<pre><code>➜  yum makecache
-➜  yum install python36u
-➜  yum -y install python36u-pip
-➜  yum -y install python36u-devel
-</code></pre>
-<ol start="3">
-<li>更改shell命令</li>
-</ol>
-<p><code>sudo ln -s /bin/python3.6 /bin/python3</code>
-<code>sudo ln -s /bin/pip3.6 /bin/pip3</code></p>
 ]]></content>
     </entry>
 </feed>
