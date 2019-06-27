@@ -1,0 +1,238 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>简述从Webpack打包后的小程序代码中找到你所要的 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1561644778593">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1561644778593" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              简述从Webpack打包后的小程序代码中找到你所要的
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2019-06-27 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/su9eNInTW" class="post-tag">
+                  # 微信小程序
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/9IfyZcgbR" class="post-tag">
+                  # Webpack
+                </a>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://Leon2xiaowu.github.io/post-images/jian-shu-ru-he-cong-webpack-da-bao-guo-hou-de-xiao-cheng-xu-dai-ma-zhong-zhao-dao-ni-xiang-yao-de-dong-xi.jpg')">
+              </div>
+            
+            <div class="post-content">
+              <p>截止文章日期，小程序包都可以通过一些特殊的方式获取，这里我采用了Android模拟器下载小程序包（具体方法自行搜索🔍），再配合<a href="https://github.com/qwerty472123/wxappUnpacker">wxappUnpacker</a>将<code>.wxapkg</code>解包还原，wxappUnpacker的README中也很清楚的说明了各种操作步骤。</p>
+<p>因为某些具体的业务需求，需要窥探一下友商的小程序，于是就有了这一次分析代码的经历。</p>
+<p>解包之后的目录大概是像下面这个样子，还有其他等等一系列的东西..</p>
+<pre><code>|-pages
+|-app.js
+|-app.json
+|-bundle.js
+</code></pre>
+<h2 id="小程序入口文件">小程序入口文件</h2>
+<p>目标小程序的代码解包之后发现是经过Webpack编译过后的代码，增加了解析的复杂度。</p>
+<p>先从小程序的入口文件<code>app.js</code>入手，观察到这样的一个代码结构</p>
+<pre><code>var window = window || {};
+
+window[&quot;webpackJsonp&quot;] = require(&quot;./bundle.js&quot;);
+
+(window.webpackJsonp = window.webpackJsonp || []).push([
+  [12345],
+  {
+    666: function(x,y,z){
+      // ...
+    },
+    999: function(x,y,z){
+      // ...
+    },
+    996: function(x,y,z){
+      // ...
+    },
+  }
+],[ [ 777, 0 ] ])
+</code></pre>
+<p>这不只是push了啥也没干嘛，怎么跑的呢。</p>
+<p>秘密都藏bundle.js中</p>
+<h2 id="bundlejs">Bundle.js</h2>
+<p>打开 Bundle.js 头皮发麻，密密麻麻都是代码。
+大概的结构如下</p>
+<pre><code>
+var window = window || {};
+
+!function(t){
+	// ... part_a
+  // ... 其他代码
+}([
+  function(x){},
+  function(x){},
+  function(x){},
+  // ... 数不清的function
+])
+module.exports = window[&quot;webpackJsonp&quot;];
+
+</code></pre>
+<p>把所有代码折起后发现，代码虽多，思路还是挺清晰的。
+那些密密麻麻的function组成了一个函数数组，传递到最外层的函数成为了变量<strong>t</strong></p>
+<p>所以小程序一开始就会执行<code>part_a</code>作用域里的代码了，其中定义了很多东西，比较关键的地方在于这里</p>
+<pre><code>
+var u = window.webpackJsonp = window.webpackJsonp || [],
+        s = u.push.bind(u);
+    u.push = e, u = u.slice();
+    for (var c = 0; c &lt; u.length; c++) 
+        e(u[c]);
+    var l = s;
+    n();
+		
+</code></pre>
+<p>重新定义了<code>window.webpackJsonp.push</code>方法为<code>e</code>，所以在执行<code>app.js</code>中执行<code>push方法</code>时，实际上执行的就是这个<code>bundle.js</code>中的<code>e方法</code></p>
+<p><code>e方法</code>可能在不通的项目中会有不同的实现，这里就不贴出来了。</p>
+<p>找到入口后我们就可以顺藤摸瓜，根据目标去发现线索，从而拿到想要的东西。</p>
+<h2 id="debugger">Debugger</h2>
+<p>如果目标小程序过于复杂的话，线索寻找也不是一个轻松的活。</p>
+<p>借助<code>VS Code</code> 的调试能力，我们可以更加快捷的找到自己想要的方法。</p>
+<p>在合适的地方进行断点，可以事半功倍。</p>
+<p>举个栗子🌰</p>
+<p>在这次分析代码的时候发现，push进<code>webpackJsonp</code>往往都是一些方法</p>
+<p><code>export</code> 内的是实际执行的代码；<code>export</code>外的是需要用到的依赖，外部函数等</p>
+<p><code>export</code> 内的代码不去主动执行是不会走进去的，export结束后，这些代码的运行也就结束了。</p>
+<pre><code>
+(window.webpackJsonp = window.webpackJsonp || []).push([
+  [12345],
+  {
+    666: function(n,y,z){
+			// 外面会定义一些依赖
+      n.exports = function(n){
+        // ... 这里不会执行
+				}
+				// ..这里会执行
+    },
+  }
+],[ [ 777, 0 ] ])
+
+</code></pre>
+<p>如果此时你把断点断在export里面，基本就凉凉。</p>
+<p>那我不知道他原来的逻辑会在哪里主动执行<code>export</code>方法，要去找，太麻烦!</p>
+<p>我们干脆在他定义完<code>export</code>的方法后手动的给他执行，这样就可以直接找到我们要找的方法的具体逻辑并执行查看具体细节了，比自己硬看想必要轻松的多。</p>
+<pre><code>
+[].push({
+    666: function(n,y,z){
+			// 外面会定义一些依赖
+      n.exports = function(n){
+				debugger
+        // ... 一不小心就进来了
+				}
+				// ..手动执行
+				n.exports('aaa')
+    },
+  })
+	
+</code></pre>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/wang-jian-r7000-zhe-teng-mei-lin">
+              <h3 class="post-title">
+                网件R7000刷入小宝梅林固件
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

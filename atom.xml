@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Leon2xiaowu.github.io</id>
     <title>普通程序员的博客</title>
-    <updated>2019-06-18T14:20:34.378Z</updated>
+    <updated>2019-06-27T14:13:04.901Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Leon2xiaowu.github.io"/>
     <link rel="self" href="https://Leon2xiaowu.github.io/atom.xml"/>
@@ -10,6 +10,120 @@
     <logo>https://Leon2xiaowu.github.io/images/avatar.png</logo>
     <icon>https://Leon2xiaowu.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, 普通程序员的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[简述从Webpack打包后的小程序代码中找到你所要的]]></title>
+        <id>https://Leon2xiaowu.github.io/post/jian-shu-ru-he-cong-webpack-da-bao-guo-hou-de-xiao-cheng-xu-dai-ma-zhong-zhao-dao-ni-xiang-yao-de-dong-xi</id>
+        <link href="https://Leon2xiaowu.github.io/post/jian-shu-ru-he-cong-webpack-da-bao-guo-hou-de-xiao-cheng-xu-dai-ma-zhong-zhao-dao-ni-xiang-yao-de-dong-xi">
+        </link>
+        <updated>2019-06-27T13:07:26.000Z</updated>
+        <content type="html"><![CDATA[<p>截止文章日期，小程序包都可以通过一些特殊的方式获取，这里我采用了Android模拟器下载小程序包（具体方法自行搜索🔍），再配合<a href="https://github.com/qwerty472123/wxappUnpacker">wxappUnpacker</a>将<code>.wxapkg</code>解包还原，wxappUnpacker的README中也很清楚的说明了各种操作步骤。</p>
+<p>因为某些具体的业务需求，需要窥探一下友商的小程序，于是就有了这一次分析代码的经历。</p>
+<p>解包之后的目录大概是像下面这个样子，还有其他等等一系列的东西..</p>
+<pre><code>|-pages
+|-app.js
+|-app.json
+|-bundle.js
+</code></pre>
+<h2 id="小程序入口文件">小程序入口文件</h2>
+<p>目标小程序的代码解包之后发现是经过Webpack编译过后的代码，增加了解析的复杂度。</p>
+<p>先从小程序的入口文件<code>app.js</code>入手，观察到这样的一个代码结构</p>
+<pre><code>var window = window || {};
+
+window[&quot;webpackJsonp&quot;] = require(&quot;./bundle.js&quot;);
+
+(window.webpackJsonp = window.webpackJsonp || []).push([
+  [12345],
+  {
+    666: function(x,y,z){
+      // ...
+    },
+    999: function(x,y,z){
+      // ...
+    },
+    996: function(x,y,z){
+      // ...
+    },
+  }
+],[ [ 777, 0 ] ])
+</code></pre>
+<p>这不只是push了啥也没干嘛，怎么跑的呢。</p>
+<p>秘密都藏bundle.js中</p>
+<h2 id="bundlejs">Bundle.js</h2>
+<p>打开 Bundle.js 头皮发麻，密密麻麻都是代码。
+大概的结构如下</p>
+<pre><code>
+var window = window || {};
+
+!function(t){
+	// ... part_a
+  // ... 其他代码
+}([
+  function(x){},
+  function(x){},
+  function(x){},
+  // ... 数不清的function
+])
+module.exports = window[&quot;webpackJsonp&quot;];
+
+</code></pre>
+<p>把所有代码折起后发现，代码虽多，思路还是挺清晰的。
+那些密密麻麻的function组成了一个函数数组，传递到最外层的函数成为了变量<strong>t</strong></p>
+<p>所以小程序一开始就会执行<code>part_a</code>作用域里的代码了，其中定义了很多东西，比较关键的地方在于这里</p>
+<pre><code>
+var u = window.webpackJsonp = window.webpackJsonp || [],
+        s = u.push.bind(u);
+    u.push = e, u = u.slice();
+    for (var c = 0; c &lt; u.length; c++) 
+        e(u[c]);
+    var l = s;
+    n();
+		
+</code></pre>
+<p>重新定义了<code>window.webpackJsonp.push</code>方法为<code>e</code>，所以在执行<code>app.js</code>中执行<code>push方法</code>时，实际上执行的就是这个<code>bundle.js</code>中的<code>e方法</code></p>
+<p><code>e方法</code>可能在不通的项目中会有不同的实现，这里就不贴出来了。</p>
+<p>找到入口后我们就可以顺藤摸瓜，根据目标去发现线索，从而拿到想要的东西。</p>
+<h2 id="debugger">Debugger</h2>
+<p>如果目标小程序过于复杂的话，线索寻找也不是一个轻松的活。</p>
+<p>借助<code>VS Code</code> 的调试能力，我们可以更加快捷的找到自己想要的方法。</p>
+<p>在合适的地方进行断点，可以事半功倍。</p>
+<p>举个栗子🌰</p>
+<p>在这次分析代码的时候发现，push进<code>webpackJsonp</code>往往都是一些方法</p>
+<p><code>export</code> 内的是实际执行的代码；<code>export</code>外的是需要用到的依赖，外部函数等</p>
+<p><code>export</code> 内的代码不去主动执行是不会走进去的，export结束后，这些代码的运行也就结束了。</p>
+<pre><code>
+(window.webpackJsonp = window.webpackJsonp || []).push([
+  [12345],
+  {
+    666: function(n,y,z){
+			// 外面会定义一些依赖
+      n.exports = function(n){
+        // ... 这里不会执行
+				}
+				// ..这里会执行
+    },
+  }
+],[ [ 777, 0 ] ])
+
+</code></pre>
+<p>如果此时你把断点断在export里面，基本就凉凉。</p>
+<p>那我不知道他原来的逻辑会在哪里主动执行<code>export</code>方法，要去找，太麻烦!</p>
+<p>我们干脆在他定义完<code>export</code>的方法后手动的给他执行，这样就可以直接找到我们要找的方法的具体逻辑并执行查看具体细节了，比自己硬看想必要轻松的多。</p>
+<pre><code>
+[].push({
+    666: function(n,y,z){
+			// 外面会定义一些依赖
+      n.exports = function(n){
+				debugger
+        // ... 一不小心就进来了
+				}
+				// ..手动执行
+				n.exports('aaa')
+    },
+  })
+	
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[网件R7000刷入小宝梅林固件]]></title>
         <id>https://Leon2xiaowu.github.io/post/wang-jian-r7000-zhe-teng-mei-lin</id>
@@ -679,40 +793,6 @@ CentOS中输入<code>ifconfig</code>查看虚拟机的CentOS具体ip
 </ol>
 <p><code>sudo ln -s /bin/python3.6 /bin/python3</code>
 <code>sudo ln -s /bin/pip3.6 /bin/pip3</code></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Webpack注入内联样式及脚本]]></title>
-        <id>https://Leon2xiaowu.github.io/post/webpack-zhu-ru-nei-lian-yang-shi-ji-jiao-ben</id>
-        <link href="https://Leon2xiaowu.github.io/post/webpack-zhu-ru-nei-lian-yang-shi-ji-jiao-ben">
-        </link>
-        <updated>2018-06-24T01:08:06.000Z</updated>
-        <content type="html"><![CDATA[<p>一般情况下，利用Webpack打包项目会生成一个HTML文件和一个script入口文件。
-在分chunk的时候也会为各个chunk生成不同的script文件，并注入到HTML文件中。</p>
-<p>然而因为业务上的需求，有时会一些很简单的活动页面，利用Webpack打包一个HTML单文件，扔到服务器上就能用，简单粗暴，更新的时候也只要更新一个文件就可以，不必将脚本、样式和HTML分别更新。</p>
-<h2 id="html-webpack-inline-source">html-webpack-inline-source</h2>
-<p><a href="https://www.npmjs.com/package/html-webpack-inline-source-plugin">html-webpack-inline-source-plugin</a>和HtmlWebpackPlugin插件配合，可以将打包生成的文件注入为行内样式和行内脚本。</p>
-<h2 id="使用">使用</h2>
-<p>通过npm安装html-webpack-inline-source
-<code>npm install --save-dev html-webpack-inline-source-plugin</code></p>
-<p>在Webpack的plugins中进行配置</p>
-<pre><code class="language-javascript">const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
-
-// Webpack config
-plugins: [
-  new HtmlWebpackPlugin(),
-  new HtmlWebpackInlineSourcePlugin()
-]  
-</code></pre>
-<p>ennnnn其实上面上面这样配置插件不会做任何事情去注入行内脚本和样式, 需要在HtmlWebpackPlugin中告诉它哪些东西需要注入行内。</p>
-<pre><code class="language-javascript">plugins: [
-  new HtmlWebpackPlugin({
-        inlineSource: '.(js|css)$' // embed all javascript and css inline
-    }),
-  new HtmlWebpackInlineSourcePlugin()
-] 
-</code></pre>
-<p>这样在我们最后build的时候index.html中就会包含行内样式和脚本。</p>
 ]]></content>
     </entry>
 </feed>
