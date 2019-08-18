@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>JavaScript面向对象的程序设计-Javascript继承 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -96,9 +96,9 @@
 </blockquote>
 <h2 id="原型链">原型链</h2>
 <h3 id="概念">概念</h3>
-<p>原型链的基本思想是让一个引用类型继承另一个引用类型的属性和方法。
-回顾一下构造函数、实例、原型对象之间的关系：每一个构造函数都有一个原型对象，每个原型对象都包含一个指向其构造函数的指针，构造函数的实例都拥有一个指针，指向构造函数的原型对象内部。
-如果我们让原型对象等于另一个类型的实例，那么此时的原型对象将包含指向另一个类型的原型对象的指针，当然这个另一个原型中肯定也包含指向另一个构造函数的指针；假设另一个类型的原型对象又等于另外一个类型的的实例，那么上述关系依然成立，如此层层叠加就构成了实例和原型的链条。
+<p>原型链的基本思想是让一个引用类型继承另一个引用类型的属性和方法。<br>
+回顾一下构造函数、实例、原型对象之间的关系：每一个构造函数都有一个原型对象，每个原型对象都包含一个指向其构造函数的指针，构造函数的实例都拥有一个指针，指向构造函数的原型对象内部。<br>
+如果我们让原型对象等于另一个类型的实例，那么此时的原型对象将包含指向另一个类型的原型对象的指针，当然这个另一个原型中肯定也包含指向另一个构造函数的指针；假设另一个类型的原型对象又等于另外一个类型的的实例，那么上述关系依然成立，如此层层叠加就构成了实例和原型的链条。<br>
 这就是原型链的概念。是不是看完后更晕了，没关系让我们来举个例子。</p>
 <pre><code class="language-javascript">function SuperType () {
   this.superValue = true
@@ -125,7 +125,7 @@ console.log(instance.getSuperValue())
 <pre><code class="language-javascript">  SubType.prototype.constructor = SubType
 </code></pre>
 <p>然而这次读《JavaScript高级程序设计》的时候，书里没有写到要将constructor重置。查阅了一下资料，发觉constructor在ECMAScript中似乎没有特别的意义。纠正constructor确实可以避免原型链的紊乱，不写感觉问题也不大（如果用到了constructor属性，那还是有必要纠正的）。</p>
-<p>原型链的紊乱会导致无法正常使用instanceof和isPrototypeOf方法
+<p>原型链的紊乱会导致无法正常使用instanceof和isPrototypeOf方法<br>
 <a href="http://stackoverflow.com/questions/8453887/why-is-it-necessary-to-set-the-prototype-constructor">Why is it necessary to set the prototype constructor?</a>StackOverflow上的这个问题估计能解决你的疑惑</p>
 <p>栗子中有一个SuperType这样一个构造函数，我们给他定义了属性并在原型上定义了一个getSuperValue的方法。接着我们又定义subtype构造函数，并将其原型重写为SuperType的实例，从而实现了继承。SubType的实例不仅拥有Subtype自身的方法和属性，还拥有从Supertype上继承而来的属性和方法。如果又有一个类型继承了SubType那么它就同时继承了subtype和supertype，如此层层叠加是不是就构成了实例和原型的链条。</p>
 <h3 id="原型链存在的问题">原型链存在的问题</h3>

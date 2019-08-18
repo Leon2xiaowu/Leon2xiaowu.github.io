@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Leon2xiaowu.github.io</id>
     <title>普通程序员的博客</title>
-    <updated>2019-08-18T04:14:31.362Z</updated>
+    <updated>2019-08-18T06:47:33.071Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Leon2xiaowu.github.io"/>
     <link rel="self" href="https://Leon2xiaowu.github.io/atom.xml"/>
@@ -18,7 +18,7 @@
         <updated>2019-08-18T02:28:46.000Z</updated>
         <content type="html"><![CDATA[<p>小程序在手机端预览的时候必须上传到服务器上，这对调整UI细节非常的不友好，当小程序包过大时这个过程及其的漫长。</p>
 <p>小程序没有热更新的能力，想要动态修改样式就必须在行内样式写上表达式<code>&lt;view class='container' style='{{styledata}}&gt;&lt;/view&gt;</code>。</p>
-<p>再此基础上，构思了一个方法：
+<p>再此基础上，构思了一个方法：<br>
 通过脚本为<code>.wxml</code>文件自动添加行内样式表达式，然后配合<code>WebSokcet</code>提供在开发过程中实时调整UI的能力。</p>
 <p>实现了一个自动化脚本的工具<a href="https://www.npmjs.com/package/wxsshup">wxsshup</a>, 脚本的主要工作是为<code>.wxml</code>文件添加基于<code>class</code>的行内样式表达式。</p>
 <pre><code class="language-html">&lt;view class='deom-class'&gt;data&lt;/view&gt;
@@ -67,11 +67,14 @@
 </code></pre>
 <p>动态的配置<code>socket</code>的地址和连接的时机，会更加方便。</p>
 <h3 id="生成wxml文件">生成WXML文件</h3>
-<p>通过执行 <code>hotwxss &lt;input path&gt; [options]</code> 生成带表达式的<code>.wxml</code>文件， <code>-c</code>模式可以覆盖源文件。
+<p>通过执行 <code>hotwxss &lt;input path&gt; [options]</code> 生成带表达式的<code>.wxml</code>文件， <code>-c</code>模式可以覆盖源文件。<br>
 ⚠️ 需要自行备份（后期会增加自动备份功能）</p>
 <h3 id="实时更新">实时更新</h3>
 <p>默认会打开位于本地一个<code>admin.html</code>文件，在页面的Socket地址栏中输入<code>ws://localhost:3000/updater</code>，添加对应的ClassName和StyleValue，最后点击更新可对已经建立连接的小程序端进行通信。</p>
 <p>由于我们之前的准备工作已经添加了<code>cloudStyle[ClassName]</code>的行内样式表达式，便可以对该Class选择器进行样式的更新。</p>
+<h2 id="遐想">遐想</h2>
+<p>如果小程序包有足够的空间，或许可以通过这种方式进行一定程度的样式热更新。<br>
+但是局限性也比较大，没有富文本来的灵活。</p>
 ]]></content>
     </entry>
     <entry>
@@ -113,7 +116,7 @@ window[&quot;webpackJsonp&quot;] = require(&quot;./bundle.js&quot;);
 <p>这不只是push了啥也没干嘛，怎么跑的呢。</p>
 <p>秘密都藏bundle.js中</p>
 <h2 id="bundlejs">Bundle.js</h2>
-<p>打开 Bundle.js 头皮发麻，密密麻麻都是代码。
+<p>打开 Bundle.js 头皮发麻，密密麻麻都是代码。<br>
 大概的结构如下</p>
 <pre><code>
 var window = window || {};
@@ -130,7 +133,7 @@ var window = window || {};
 module.exports = window[&quot;webpackJsonp&quot;];
 
 </code></pre>
-<p>把所有代码折起后发现，代码虽多，思路还是挺清晰的。
+<p>把所有代码折起后发现，代码虽多，思路还是挺清晰的。<br>
 那些密密麻麻的function组成了一个函数数组，传递到最外层的函数成为了变量<strong>t</strong></p>
 <p>所以小程序一开始就会执行<code>part_a</code>作用域里的代码了，其中定义了很多东西，比较关键的地方在于这里</p>
 <pre><code>
@@ -204,7 +207,7 @@ var u = window.webpackJsonp = window.webpackJsonp || [],
 <h2 id="一发入魂">一发入魂</h2>
 <p><a href="https://koolshare.cn/thread-139324-1-1.html">网件系列梅林教程</a> koolshare论坛提供，如果可以根据这个教程刷下来，那么接下来的也就不需要看了。</p>
 <h2 id="无限重启">无限重启</h2>
-<p>在根据论坛的教程刷入「梅林过渡固件」后无限重启
+<p>在根据论坛的教程刷入「梅林过渡固件」后无限重启<br>
 之后了解到可能是因为曾今刷过梅林后又刷回官方固件导致的</p>
 <h3 id="救砖">救砖</h3>
 <p>无限重启也不是办法，好在R7000足够顽强</p>
@@ -286,7 +289,7 @@ Reboot your device now.
 <p>经过对比，<code>world.json</code>中的<code>coordinates</code>字段为经纬度，<code>china.json</code>中则为Encode处理后的经纬度。</p>
 <p>Debug源码发现由<code>UTF8Encoding</code>控制是否对JSON内容进行Decode，于是给合并后的JSON数据加上<code>UTF8Encoding = true</code>，然后又失败了。</p>
 <p>控制台抛出异常：<code>Invalid geoJson format; coordinate.charCodeAt is not a function</code></p>
-<p>喵喵喵??  decode完就格式就不对了...
+<p>喵喵喵??  decode完就格式就不对了...<br>
 Debug源码找到原因，<code>UTF8Encoding</code>为true开启decode后，对整个list进行decode操作，decode操作又要用到<code>encodeOffsets</code>，<code>world.json</code>没有这个key，所以就嗝屁了。</p>
 <p>在拼接JSON前先把JSON给decode好，不就没问题了么，试了一下果然搞定了。</p>
 <h3 id="看个效果">看个效果</h3>
@@ -699,7 +702,7 @@ const gl = canvas.getContext('webgl');
 </blockquote>
 <h2 id="概述">概述</h2>
 <p>在个人计算机上使用最广泛的两种三维图形渲染技术是微软的Direct3D和OpenGL。</p>
-<p>WebGL技术规范继承自免费和开源的OpenGL标准，某种意义上，WebGL就是
+<p>WebGL技术规范继承自免费和开源的OpenGL标准，某种意义上，WebGL就是<br>
 &quot;Web版的OpenGL&quot;。</p>
 <p>OpenGL、OpenGL ES各版本和WebGL的关系</p>
 <p><img src="https://ws1.sinaimg.cn/large/e908d83ely1fud2af28yej20w80b248i.jpg" alt="OpenGL、OpenGL ES各版本和WebGL的关系"></p>
@@ -755,7 +758,7 @@ const gl = canvas.getContext('webgl');
         <link href="https://Leon2xiaowu.github.io/post/pd-xu-ni-ji-da-jian-centos-7-huan-jing">
         </link>
         <updated>2018-07-07T01:08:06.000Z</updated>
-        <content type="html"><![CDATA[<p>第一次接触CentOS之类的内容，以前大学时Linux的课也没好好听过（捂脸），搞得一头雾水。
+        <content type="html"><![CDATA[<p>第一次接触CentOS之类的内容，以前大学时Linux的课也没好好听过（捂脸），搞得一头雾水。<br>
 SSH直接操作VPS延迟挺大的不爽，于是就利用虚拟机创建个环境方便自己学习。</p>
 <h2 id="准备工作">准备工作</h2>
 <ol>
@@ -763,70 +766,70 @@ SSH直接操作VPS延迟挺大的不爽，于是就利用虚拟机创建个环�
 <li><a href="http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso">CentOS-7-x86_64-Minimal镜像</a></li>
 </ol>
 <h2 id="安装系统">安装系统</h2>
-<p>我用的是PD13.3，可能不同版本之间部分细节会有差异。
-安装很简单，新建 =&gt; 选择下载的CentOS =&gt; 勾选快速安装(省事)，这里设置的密码会成为root用户的密码。
+<p>我用的是PD13.3，可能不同版本之间部分细节会有差异。<br>
+安装很简单，新建 =&gt; 选择下载的CentOS =&gt; 勾选快速安装(省事)，这里设置的密码会成为root用户的密码。<br>
 这里的网络方式我选择了<strong>共享网络</strong>，在后续的操作中并没有出现不通的情况。</p>
 <p>然后就是等待重启，并输入用户名root和刚才设置的密码，成功登录就ok。</p>
 <h2 id="ssh访问虚拟机">SSH访问虚拟机</h2>
 <p>在虚拟机里直接操作太麻烦，且用户体验不好，我们使用SSH访问虚拟机并一顿操作。</p>
 <ol>
 <li>
-<p>检查<code>openssh-server</code>
-<code>yum list installed | grep openssh-server</code> 检查是否已经安装，如果没有则需要通过yum来安装
+<p>检查<code>openssh-server</code><br>
+<code>yum list installed | grep openssh-server</code> 检查是否已经安装，如果没有则需要通过yum来安装<br>
 <code>yum install openssh-server</code></p>
 </li>
 <li>
-<p>配置ssh_config
-在<code>/etc/ssh/sshd_config</code>有ssh服务的配置，用vim对其编辑
+<p>配置ssh_config<br>
+在<code>/etc/ssh/sshd_config</code>有ssh服务的配置，用vim对其编辑<br>
 <code>vi /etc/ssh/sshd_config</code></p>
 </li>
 </ol>
-<p>对配置做如下更改
-开启端口号
-将Port、ListenAddress、ListenAddress 的注释放开、删除前面的#
-<img src="http://pbh6tbqw4.bkt.clouddn.com/image/open_SSH_Config_1.png" alt="配置修改1">
-接着在不远的后面，将PasswordAuthentication设为ye's，虽然好像本来就是yes，如果有注释也要放开
+<p>对配置做如下更改<br>
+开启端口号<br>
+将Port、ListenAddress、ListenAddress 的注释放开、删除前面的#<br>
+<img src="http://pbh6tbqw4.bkt.clouddn.com/image/open_SSH_Config_1.png" alt="配置修改1"><br>
+接着在不远的后面，将PasswordAuthentication设为ye's，虽然好像本来就是yes，如果有注释也要放开<br>
 <img src="http://pbh6tbqw4.bkt.clouddn.com/image/open_SSH_Config_2.png" alt="配置修改2"></p>
 <ol start="3">
 <li>
-<p>开启sshd
-<code>sudo service sshd start</code>开启服务
+<p>开启sshd<br>
+<code>sudo service sshd start</code>开启服务<br>
 <code>ps -e | grep sshd</code>检查sshd服务开启情况</p>
 </li>
 <li>
-<p>测试是否互通
-CentOS中输入<code>ifconfig</code>查看虚拟机的CentOS具体ip
-没有<code>ifconfig</code>命令可以通过<code>yum install net-tools</code>安装
-<img src="http://pbh6tbqw4.bkt.clouddn.com/image/ifconfig.png" alt="ifconfig">
-虚拟机中通过<code>ping 主机ip</code>测试能否ping通
-反过来主机通过<code>ping 虚拟机ip</code>测试
+<p>测试是否互通<br>
+CentOS中输入<code>ifconfig</code>查看虚拟机的CentOS具体ip<br>
+没有<code>ifconfig</code>命令可以通过<code>yum install net-tools</code>安装<br>
+<img src="http://pbh6tbqw4.bkt.clouddn.com/image/ifconfig.png" alt="ifconfig"><br>
+虚拟机中通过<code>ping 主机ip</code>测试能否ping通<br>
+反过来主机通过<code>ping 虚拟机ip</code>测试<br>
 均能ping通基本没问题，可以通过SSH访问虚拟机了，如果ping不通请Google一下，我没遇到~</p>
 </li>
 </ol>
 <h2 id="安装nginx">安装Nginx</h2>
-<p>我们通过IUS源来安装各种包
+<p>我们通过IUS源来安装各种包<br>
 <code>sudo yum install https://centos7.iuscommunity.org/ius-release.rpm</code></p>
 <p>通过yum 安装 Nginx<code>yum install nginx</code></p>
 <p>开机启动Nginx <code>sudo systemctl start nginx.service</code></p>
-<p>然后发现主机访问不了虚拟机的Nginx服务，但的的确确是通的。
+<p>然后发现主机访问不了虚拟机的Nginx服务，但的的确确是通的。<br>
 其实是CentOS的防火墙搞的鬼，我们设置一下。</p>
 <p><code>firewall-cmd --zone=public --add-port=80/tcp --permanent</code></p>
-<p>--zone 表示 作用于
---add-port 为添加端口/协议
+<p>--zone 表示 作用于<br>
+--add-port 为添加端口/协议<br>
 --permanent 永久生效，不加的话重启就凉了</p>
-<p>重启防火墙
-<code>systemctl stop firewalld.service</code>
-<code>systemctl start firewalld.service</code>
+<p>重启防火墙<br>
+<code>systemctl stop firewalld.service</code><br>
+<code>systemctl start firewalld.service</code><br>
 如此一来也就可以愉快的访问虚拟机的Nginx服务了</p>
 <h2 id="安装uwsgi">安装uWSGI</h2>
 <p><code>pip install uwsgi</code></p>
-<p>如果报错的话检查下<code>python3-devel</code>是否有安装
+<p>如果报错的话检查下<code>python3-devel</code>是否有安装<br>
 通过<code>yum -y install python36u-devel</code> 进行安装</p>
 <h3 id="uwsgi放在nginx后遇到的错误">uWSGI放在Nginx后遇到的错误</h3>
 <h4 id="failed-13-permission-denied-while-connecting-to-upstream">failed (13: Permission denied) while connecting to upstream</h4>
 <p>Nginx转发请求本地接口时么有权限导致的</p>
 <p><a href="https://stackoverflow.com/questions/21820444/nginx-error-13-permission-denied-while-connecting-to-upstream">nginx-error-13-permission-denied-while-connecting-to-upstream</a></p>
-<p>除了权限以外还有可能是Selinux
+<p>除了权限以外还有可能是Selinux<br>
 <code>setsebool -P httpd_can_network_connect 1</code></p>
 <h2 id="参考文章">参考文章</h2>
 <p><a href="https://blog.csdn.net/trackle400/article/details/52755571">虚拟机下CentOS7开启SSH连接</a></p>

@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>JavaScript面向对象的程序设计-类的创建 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -129,8 +129,8 @@ let person1 = new Person()
 let person2 = new Person()
 console.log(person1.sayName === person2.sayName) //true
 </code></pre>
-<p>创建了自定义构造函数Person()后，其原型对象会自动生成一个constructor指向Person。当调用构造函数生成实例后，实例会有一个[[prototype]]属性，虽然这个属性在js中没有明确的访问方式，不过Firefox、chrome和Safari都有一个__proto__表示，实例的[[prototype]]指向构造函数的prototype。
-{%asset_img prototype.png 实例与原型的关系%}
+<p>创建了自定义构造函数Person()后，其原型对象会自动生成一个constructor指向Person。当调用构造函数生成实例后，实例会有一个[[prototype]]属性，虽然这个属性在js中没有明确的访问方式，不过Firefox、chrome和Safari都有一个__proto__表示，实例的[[prototype]]指向构造函数的prototype。<br>
+{%asset_img prototype.png 实例与原型的关系%}<br>
 然而原型模式也存在着问题，定义在prototype上的函数或方法是被所有的实例所共享的。如果是值类型的属性倒也还好，当属性为引用类型时就会出现问题。</p>
 <pre><code class="language-javascript">function Person() {}
 Person.prototype.borther = [&quot;apple&quot;,&quot;Logitech&quot;]

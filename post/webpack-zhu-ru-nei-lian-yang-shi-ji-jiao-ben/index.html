@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Webpack注入内联样式及脚本 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -95,13 +95,13 @@
               </div>
             
             <div class="post-content">
-              <p>一般情况下，利用Webpack打包项目会生成一个HTML文件和一个script入口文件。
+              <p>一般情况下，利用Webpack打包项目会生成一个HTML文件和一个script入口文件。<br>
 在分chunk的时候也会为各个chunk生成不同的script文件，并注入到HTML文件中。</p>
 <p>然而因为业务上的需求，有时会一些很简单的活动页面，利用Webpack打包一个HTML单文件，扔到服务器上就能用，简单粗暴，更新的时候也只要更新一个文件就可以，不必将脚本、样式和HTML分别更新。</p>
 <h2 id="html-webpack-inline-source">html-webpack-inline-source</h2>
 <p><a href="https://www.npmjs.com/package/html-webpack-inline-source-plugin">html-webpack-inline-source-plugin</a>和HtmlWebpackPlugin插件配合，可以将打包生成的文件注入为行内样式和行内脚本。</p>
 <h2 id="使用">使用</h2>
-<p>通过npm安装html-webpack-inline-source
+<p>通过npm安装html-webpack-inline-source<br>
 <code>npm install --save-dev html-webpack-inline-source-plugin</code></p>
 <p>在Webpack的plugins中进行配置</p>
 <pre><code class="language-javascript">const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');

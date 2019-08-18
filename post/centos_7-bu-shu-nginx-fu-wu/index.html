@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CentOS_7部署Nginx服务 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -97,8 +97,8 @@
             <div class="post-content">
               <p>没完整的建过站，于是把闲置的搬瓦工用起来。</p>
 <h2 id="安装nginx">安装Nginx</h2>
-<p>用终端连接VPS
-<code>ssh root@ip_address -p port</code>
+<p>用终端连接VPS<br>
+<code>ssh root@ip_address -p port</code><br>
 换成对应的ip地址和端口，输入正确密码后就成功连接。</p>
 <p><code>yum install nginx</code> 安装nginx失败，提示：没有可用软件包 nginx</p>
 <p>源里没有那就直接从官网下好了</p>
@@ -110,11 +110,11 @@
 <h2 id="openssl生成csr文件申请ssl证书">OpenSSL生成CSR文件申请SSL证书</h2>
 <p>DogDaddy上注册了一个<code>.app</code>的域名，还送了一年证书，也正好用起来。</p>
 <p><code>openssl req -new -nodes -sha256 -newkey rsa:2048 -keyout myprivate.key -out mydomain.csr</code></p>
-<p>new: 生成一个新的CSR
-nodes: 私钥文件不被加密
-sha256: 摘要算法
-keyout: 生成私钥,
-newkey rsa:2048: 指定私钥类型和长
+<p>new: 生成一个新的CSR<br>
+nodes: 私钥文件不被加密<br>
+sha256: 摘要算法<br>
+keyout: 生成私钥,<br>
+newkey rsa:2048: 指定私钥类型和长<br>
 mydomain.csr: 最后生成的文件名</p>
 <p>执行上面命令后会要求输入以下内容</p>
 <table>

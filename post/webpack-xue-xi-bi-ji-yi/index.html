@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Webpack学习笔记一 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -135,7 +135,7 @@
 </code></pre>
 <p>main.js就是entry file，build.js就是经过打包后输出的文件。</p>
 <h3 id="多入口文件">多入口文件</h3>
-<p>Webpack允许多入口文件的配置，这可以用于多页面应用中。
+<p>Webpack允许多入口文件的配置，这可以用于多页面应用中。<br>
 example</p>
 <pre><code class="language-javascript">  module.exports = {
     entry: {
@@ -147,7 +147,7 @@ example</p>
     }
   }
 </code></pre>
-<p>entry由字符串变成对象，并在其中添加[编译名的文件名]:[入口文件Url]组成的键值对；
+<p>entry由字符串变成对象，并在其中添加[编译名的文件名]:[入口文件Url]组成的键值对；<br>
 output由指定的文件名变成[name].js，根据entry指定的name来打包编译。</p>
 <h3 id="loaders">Loaders</h3>
 <p>Loaders也叫加载器，它能够为你的应用对源文件做进一步的处理。</p>
@@ -195,15 +195,15 @@ loaders:[
   { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' }
 ]
 </code></pre>
-<p>url-loader会将图片进行转换，如果图片小于8192bytes，将会转换成Base64的Data URL；反过来，就转换成正常的路径。
+<p>url-loader会将图片进行转换，如果图片小于8192bytes，将会转换成Base64的Data URL；反过来，就转换成正常的路径。<br>
 假设有两张一大一小的图片，第一张小于8192bytes，第二张则大于。那么两者会被换成这样：</p>
 <pre><code class="language-html">&lt;!-- 小图转换成Base64 --&gt;
 &lt;img src=&quot;data:image/png;base64,iVBOR...uQmCC&quot;&gt;  
 &lt;img src=&quot;4853ca667a2b8b8844eb2693ac1b2578.png&quot;&gt;
 </code></pre>
 <h4 id="css-module">Css Module</h4>
-<p>css-loader?modules 能够开启加载的Css模块中的属性的作用域。
-也就是说你导入的css模块中的属性默认是本地的、局部的，你能选择使用:global(...)将选择器提升为全局。<a href="https://css-modules.github.io/webpack-demo/">详细</a>
+<p>css-loader?modules 能够开启加载的Css模块中的属性的作用域。<br>
+也就是说你导入的css模块中的属性默认是本地的、局部的，你能选择使用:global(...)将选择器提升为全局。<a href="https://css-modules.github.io/webpack-demo/">详细</a><br>
 index.heml</p>
 <pre><code class="language-html">&lt;html&gt;
 &lt;body&gt;
@@ -260,9 +260,9 @@ ReactDOM.render(
   }
 };
 </code></pre>
-<p>第一个h1不会有任何变化，因为没有定义全局的.h1选择器；
-第二个h1为红色，由于.h1的作用范围为本地，所以style.h1能够正确找到选择器；
-h2均为蓝色，其是通过:global(.h2){...}定义的选择器，所以作用范围为全部。
+<p>第一个h1不会有任何变化，因为没有定义全局的.h1选择器；<br>
+第二个h1为红色，由于.h1的作用范围为本地，所以style.h1能够正确找到选择器；<br>
+h2均为蓝色，其是通过:global(.h2){...}定义的选择器，所以作用范围为全部。<br>
 {%asset_img css-module.png 运行结果%}</p>
 <h3 id="plugin">Plugin</h3>
 <h4 id="uglifyjs-plugin">UglifyJs Plugin</h4>
@@ -287,8 +287,8 @@ module.exports = {
 <pre><code class="language-javascript">var o=&quot;Hello&quot;;o+=&quot; World&quot;,document.write(&quot;&lt;h1&gt;&quot;+o+&quot;&lt;/h1&gt;&quot;)
 </code></pre>
 <h4 id="html-webpack-plugin-and-open-browser-webpack-plugin">HTML Webpack Plugin and Open Browser Webpack Plugin</h4>
-<p>webpack还可以使用第三方的插件。
-HTML Webpack Plugin 能够为你自动生成一个index.html，
+<p>webpack还可以使用第三方的插件。<br>
+HTML Webpack Plugin 能够为你自动生成一个index.html，<br>
 Open Browser Webpack Plugin能够在webpack服务运行的时候打开一个新的浏览器标签并载入页面</p>
 <pre><code class="language-javascript">var HtmlwebpackPlugin = require('html-webpack-plugin');
 var OpenBrowserPlugin = require('open-browser-webpack-plugin');
@@ -311,7 +311,7 @@ module.exports = {
 </code></pre>
 <p>运行webpack-dev-save，现在你不需要自己创建index.html和打开浏览器了。👍</p>
 <h4 id="environment-flags">Environment flags</h4>
-<p>你还能利用环境标志，让部分代码只能运行在开发环境中
+<p>你还能利用环境标志，让部分代码只能运行在开发环境中<br>
 main.js</p>
 <pre><code class="language-javascript">document.write('&lt;h1&gt;Environment flags&lt;/h1&gt;')
 if (__DEV__){
@@ -343,7 +343,7 @@ $ webpack-dev-server
 </code></pre>
 <p>{%asset_img environment.png 运行结果%}</p>
 <h3 id="code-splitting">Code splitting</h3>
-<p>在大型项目中，将所有的代码放在一个文件中是极其没有效率的一件事件。webpack允许将其分割成许多不同的块，并按照需求进行加载。
+<p>在大型项目中，将所有的代码放在一个文件中是极其没有效率的一件事件。webpack允许将其分割成许多不同的块，并按照需求进行加载。<br>
 首先，用require.ensure定义一个分割点</p>
 <pre><code class="language-javascript">require.ensure(['./a'],function(require){
   vat content  = require('./a')
@@ -352,7 +352,7 @@ $ webpack-dev-server
   document.colors()
 })
 </code></pre>
-<p>require.ensure 告诉webpack &quot;a.js&quot;应该被分开加载并打包为一个文件。
+<p>require.ensure 告诉webpack &quot;a.js&quot;应该被分开加载并打包为一个文件。<br>
 另外一种方法是使用<a href="https://www.npmjs.com/package/bundle-loader">bundle-loader</a></p>
 <pre><code class="language-javascript">// main.js
 

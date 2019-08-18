@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>小程序增加热更新提高开发过程中UI的调整效率 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -93,7 +93,7 @@
             <div class="post-content">
               <p>小程序在手机端预览的时候必须上传到服务器上，这对调整UI细节非常的不友好，当小程序包过大时这个过程及其的漫长。</p>
 <p>小程序没有热更新的能力，想要动态修改样式就必须在行内样式写上表达式<code>&lt;view class='container' style='{{styledata}}&gt;&lt;/view&gt;</code>。</p>
-<p>再此基础上，构思了一个方法：
+<p>再此基础上，构思了一个方法：<br>
 通过脚本为<code>.wxml</code>文件自动添加行内样式表达式，然后配合<code>WebSokcet</code>提供在开发过程中实时调整UI的能力。</p>
 <p>实现了一个自动化脚本的工具<a href="https://www.npmjs.com/package/wxsshup">wxsshup</a>, 脚本的主要工作是为<code>.wxml</code>文件添加基于<code>class</code>的行内样式表达式。</p>
 <pre><code class="language-html">&lt;view class='deom-class'&gt;data&lt;/view&gt;
@@ -142,11 +142,14 @@
 </code></pre>
 <p>动态的配置<code>socket</code>的地址和连接的时机，会更加方便。</p>
 <h3 id="生成wxml文件">生成WXML文件</h3>
-<p>通过执行 <code>hotwxss &lt;input path&gt; [options]</code> 生成带表达式的<code>.wxml</code>文件， <code>-c</code>模式可以覆盖源文件。
+<p>通过执行 <code>hotwxss &lt;input path&gt; [options]</code> 生成带表达式的<code>.wxml</code>文件， <code>-c</code>模式可以覆盖源文件。<br>
 ⚠️ 需要自行备份（后期会增加自动备份功能）</p>
 <h3 id="实时更新">实时更新</h3>
 <p>默认会打开位于本地一个<code>admin.html</code>文件，在页面的Socket地址栏中输入<code>ws://localhost:3000/updater</code>，添加对应的ClassName和StyleValue，最后点击更新可对已经建立连接的小程序端进行通信。</p>
 <p>由于我们之前的准备工作已经添加了<code>cloudStyle[ClassName]</code>的行内样式表达式，便可以对该Class选择器进行样式的更新。</p>
+<h2 id="遐想">遐想</h2>
+<p>如果小程序包有足够的空间，或许可以通过这种方式进行一定程度的样式热更新。<br>
+但是局限性也比较大，没有富文本来的灵活。</p>
 
             </div>
           </article>

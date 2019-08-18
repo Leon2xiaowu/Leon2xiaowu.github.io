@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Echarts动态加载GeoJSON地图 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -115,7 +115,7 @@
 <p>经过对比，<code>world.json</code>中的<code>coordinates</code>字段为经纬度，<code>china.json</code>中则为Encode处理后的经纬度。</p>
 <p>Debug源码发现由<code>UTF8Encoding</code>控制是否对JSON内容进行Decode，于是给合并后的JSON数据加上<code>UTF8Encoding = true</code>，然后又失败了。</p>
 <p>控制台抛出异常：<code>Invalid geoJson format; coordinate.charCodeAt is not a function</code></p>
-<p>喵喵喵??  decode完就格式就不对了...
+<p>喵喵喵??  decode完就格式就不对了...<br>
 Debug源码找到原因，<code>UTF8Encoding</code>为true开启decode后，对整个list进行decode操作，decode操作又要用到<code>encodeOffsets</code>，<code>world.json</code>没有这个key，所以就嗝屁了。</p>
 <p>在拼接JSON前先把JSON给decode好，不就没问题了么，试了一下果然搞定了。</p>
 <h3 id="看个效果">看个效果</h3>

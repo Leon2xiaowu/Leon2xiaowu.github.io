@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>微信H5获取iBeacons设备信息 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -97,7 +97,7 @@
 <li>添加设备并激活对应设备</li>
 <li>拿到设备的一系列参数</li>
 </ol>
-<p>设备信息类似于：
+<p>设备信息类似于：<br>
 请将下表的UUID、Major、Minor信息配置至iBeacon设备，其中，major、minor为10进制。</p>
 <table>
 <thead>
@@ -119,11 +119,11 @@
 </tr>
 </tbody>
 </table>
-<p>1、2是前提条件，不满足API不会有任何反应
+<p>1、2是前提条件，不满足API不会有任何反应<br>
 3 是后续会用到的参数，让PM弄好了给你，如果你自己就是PM就在公众号里找找，可以导出对应Excel</p>
 <h2 id="获取beacon信息">获取beacon信息</h2>
 <p><a href="https://mp.weixin.qq.com/wiki?t=resource/res_main&amp;id=mp1443448133">H5页面获取设备信息 JS API</a></p>
-<p>微信提供了开启、监听、关闭三个Beacon对应的接口。
+<p>微信提供了开启、监听、关闭三个Beacon对应的接口。<br>
 在开始查找之前还需要将设备添加至对应分组，否则<code>onSearchBeacons</code>不会有任何反应、不进入任何回调</p>
 <h3 id="添加beacon至分组">添加beacon至分组</h3>
 <p>根据文档-(新增分组)[https://mp.weixin.qq.com/wiki?t=resource/res_main&amp;id=mp1459330208]</p>
@@ -140,7 +140,7 @@
 <li>注册微信SDK的公众号和添加设备的公众号不一致</li>
 </ol>
 <h2 id="关闭beacon搜索">关闭beacon搜索</h2>
-<p>开启<code>startSearchBeacons</code>后，微信中关闭网页并不会自动stopSearchBeacons。
+<p>开启<code>startSearchBeacons</code>后，微信中关闭网页并不会自动stopSearchBeacons。<br>
 只能手动执行<code>stopSearchBeacons</code>关闭，可添加<code>beforeunload</code> listener在页面卸载前手动关闭</p>
 
             </div>

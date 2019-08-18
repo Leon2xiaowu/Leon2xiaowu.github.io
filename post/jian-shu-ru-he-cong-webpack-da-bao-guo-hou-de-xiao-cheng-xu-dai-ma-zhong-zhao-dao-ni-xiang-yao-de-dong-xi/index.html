@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>简述从Webpack打包后的小程序代码中找到你所要的 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -132,7 +132,7 @@ window[&quot;webpackJsonp&quot;] = require(&quot;./bundle.js&quot;);
 <p>这不只是push了啥也没干嘛，怎么跑的呢。</p>
 <p>秘密都藏bundle.js中</p>
 <h2 id="bundlejs">Bundle.js</h2>
-<p>打开 Bundle.js 头皮发麻，密密麻麻都是代码。
+<p>打开 Bundle.js 头皮发麻，密密麻麻都是代码。<br>
 大概的结构如下</p>
 <pre><code>
 var window = window || {};
@@ -149,7 +149,7 @@ var window = window || {};
 module.exports = window[&quot;webpackJsonp&quot;];
 
 </code></pre>
-<p>把所有代码折起后发现，代码虽多，思路还是挺清晰的。
+<p>把所有代码折起后发现，代码虽多，思路还是挺清晰的。<br>
 那些密密麻麻的function组成了一个函数数组，传递到最外层的函数成为了变量<strong>t</strong></p>
 <p>所以小程序一开始就会执行<code>part_a</code>作用域里的代码了，其中定义了很多东西，比较关键的地方在于这里</p>
 <pre><code>

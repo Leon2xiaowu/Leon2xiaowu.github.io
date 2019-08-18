@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Webpack学习笔记二 | 普通程序员的博客</title>
-<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566101577789">
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1566110848169">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Leon2xiaowu.github.io">
-  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566101577789" alt="">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1566110848169" alt="">
   </a>
   <h1 class="site-title">
     普通程序员的博客
@@ -97,8 +97,8 @@
             <div class="post-content">
               <p>这是学习Webpack的下一篇笔记，上一篇<a href="https://jsdtt.github.io/2017/01/13/Webpack%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80/">webpack学习笔记一</a>.</p>
 <h3 id="common-chunk">Common chunk</h3>
-<p>当多个script文件用着公共的函数块时，你能使用CommonsChunkPlugin将公共部分编译成为一个单独的文件。
-省略了html和js..
+<p>当多个script文件用着公共的函数块时，你能使用CommonsChunkPlugin将公共部分编译成为一个单独的文件。<br>
+省略了html和js..<br>
 webpack.config.js</p>
 <pre><code class="language-javascript">var CommonsChunkPlugin = require(&quot;webpack/lib/optimize/CommonsChunkPlugin&quot;);
 module.exports = {
@@ -128,12 +128,12 @@ module.exports = {
 </code></pre>
 <p>通过webpack编译打包后会生成一个init.js的公共部分</p>
 <h3 id="vendor-chunk">Vendor chunk</h3>
-<p>不知道Vendor chunk应该翻译成什么，大意应该就是第三方library函数块。
+<p>不知道Vendor chunk应该翻译成什么，大意应该就是第三方library函数块。<br>
 通过CommonsChunkPlugin能够将第三方的library导出为一个单独的文件，从而让编译后的js在开发的时候更加清晰</p>
 <pre><code class="language-javascript">var $ = require('jquery')
 $.('h1').text('Hello World')
 </code></pre>
-<p>//省略html，在html中要引入分割出来的第三方library，如vendor.js
+<p>//省略html，在html中要引入分割出来的第三方library，如vendor.js<br>
 webpack.config.js</p>
 <pre><code class="language-javascript">var webpack = require('webpack')
 module.exports = {
@@ -174,7 +174,7 @@ module.exports = {
 };
 </code></pre>
 <h3 id="exposing-global-variables">Exposing global variables</h3>
-<p>如果你想使用一些全局变量，但是不想这些变量在bundle的时候包括在里面。你可以开启在webpack的配置文件中开启externals.<a href="http://webpack.github.io/docs/library-and-externals.html">文档</a>
+<p>如果你想使用一些全局变量，但是不想这些变量在bundle的时候包括在里面。你可以开启在webpack的配置文件中开启externals.<a href="http://webpack.github.io/docs/library-and-externals.html">文档</a><br>
 例如你有一个data.js</p>
 <pre><code class="language-javascript">var data = &quot;Hello&quot;
 </code></pre>
@@ -215,14 +215,14 @@ ReactDOM.render(
 );
 </code></pre>
 <h3 id="hot-module-replacement">Hot Module Replacement</h3>
-<p>Hot Module Replacement()热加载能够在修改后对应用进行实时加载而不需要重新加载，你能够使用两种方法开启热加载
+<p>Hot Module Replacement()热加载能够在修改后对应用进行实时加载而不需要重新加载，你能够使用两种方法开启热加载<br>
 （1）在命令行追加“--hot”和”--inline“</p>
 <pre><code>$ webpack-dev-server --hot --inline
 </code></pre>
 <ul>
 <li>--hot: 添加HotModuleReplacementPlugin并似的服务进入热加载模式</li>
 <li>--inline: webpack-dev-server在运行中进行bundle</li>
-<li>--hot --inline: 同时添加上面两个命令的功能
+<li>--hot --inline: 同时添加上面两个命令的功能<br>
 （2）编辑webpack配置文件</li>
 <li>添加HotModuleReplacementPlugin扩展</li>
 <li>在entry中添加 webpack/hot/dev-server 和 webpack-dev-server/client?http://localhost:8080</li>
