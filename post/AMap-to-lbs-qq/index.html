@@ -1,0 +1,199 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>业务线高德地图换腾讯地图的解决思路 | 普通程序员的博客</title>
+<link rel="shortcut icon" href="https://Leon2xiaowu.github.io/favicon.ico?v=1568512347446">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Leon2xiaowu.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Leon2xiaowu.github.io">
+  <img class="avatar" src="https://Leon2xiaowu.github.io/images/avatar.png?v=1568512347446" alt="">
+  </a>
+  <h1 class="site-title">
+    普通程序员的博客
+  </h1>
+  <p class="site-description">
+    Do not, for one repulse, forgo the purpose that you resolved to effort.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              业务线高德地图换腾讯地图的解决思路
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2019-09-14 ·
+              </time>
+              
+                <a href="https://Leon2xiaowu.github.io/tag/JHRU9zkub" class="post-tag">
+                  # Javascript
+                </a>
+              
+            </div>
+            
+              <div class="post-feature-image" style="background-image: url('https://images.unsplash.com/photo-1517103495705-b67d1a4eefac?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1651&amp;q=80')">
+              </div>
+            
+            <div class="post-content">
+              <h2 id="背景">背景</h2>
+<p>一个被N多项目组接盘转手的产品已有一套由高德地图实现的业务，领导决定将地图修改为腾讯地图。<br>
+项目业务逻辑较为复杂，代码耦合度很高，相同功能实现没有抽离，之前开发的同事直接CV大法干起来。<br>
+在尽量不去改动业务代码的前提下，对腾讯地图进一步封装，API包装成高德地图的使用方式。</p>
+<h2 id="异步加载">异步加载</h2>
+<p>一方面，减少页面的白屏时间；另一方面也给开发带来了一定的不方便；</p>
+<pre><code class="language-js">function loadQQMapScript() {
+  const key = 'lsb.qq.key'
+  const scriptSrc = `https://map.qq.com/api/js?v=2.exp&amp;key=${key}&amp;callback=init`
+  return new Promise((resolve, reject) =&gt; {
+    if (window.qq &amp;&amp; !qq.maps.__load &amp;&amp; window.qq.maps) resolve(lbsQQ)
+		
+		//  深坑警告⚠️⚠️
+    asyncLoadScript(scriptSrc, reject)
+    
+    window.init = function () {
+      // some callback handle
+    };
+  });
+}
+</code></pre>
+<h2 id="封装">封装</h2>
+<p>异步加载腾讯地图的原因，类的封装也需要在加载完成后执行。意味着对<code>qq.maps.Map</code>等类的继承不能在脚本一运行就执行，需要手动调用后执行。</p>
+<pre><code class="language-js">export function Map(mapContainer, options) {
+  // some adaption handle
+  options.zoomControl = false
+  options.mapTypeControl = false
+
+  class QMap extends qq.maps.Map {
+    constructor(mapContainer, options) {
+      super(mapContainer, options)
+      // some init handle
+    }
+    setFitView(markers) {
+      // Do some adaptation to AMap API
+    }
+  }
+
+  return new QMap(MapContainer, options)
+}
+</code></pre>
+<p>在业务代码中执行<code>new AMap.Map</code> 最后返回的是一个继承于<code>qq.maps.Map</code>的一个类，在自定义的类中能够对两个地图差异部分的内容很方便的做适配。</p>
+<h2 id="蜜汁问题让人头秃">蜜汁问题让人头秃</h2>
+<blockquote>
+<p>Vue 项目中动态引入腾讯地图JS SDK，路由离开并返回后，JS SDK脚本进行二次加载，同时二次加载前 <code>new qq.maps.*</code> 变量均无法正常工作<br>
+PageA -&gt; PageB -&gt; PageA Map对象异常，并且存在一定的时间差和不确定性</p>
+</blockquote>
+<p>项目是由Vue+Vuex+VueRouter 全家桶构成🤦‍♂️，曾一度怀疑是这三个其中一个的锅，具体表现在于 <code>new QMap</code> 出来的对象被Vue响应式处理后出现了异常，无法继续使用。<br>
+控制台出现异常：<br>
+<code>Uncaught Error: Invalid value or type for property &lt;map&gt; ：[object Object]</code></p>
+<h3 id="排查">排查</h3>
+<p>step1. 为了实锤是不是Vue的锅，用全家桶自己写了一个模拟了之后并未出现上述问题（模拟的不严谨，缺乏了一个重要的不同点），即使是在Vue响应式处理后也并不会影响Map的正常调用执行。</p>
+<p>step2. 排查是否封装的类有问题，全部改成直接用<code>qq.map.</code>对象，错误依旧。</p>
+<p>在排除这两个原因后，我要崩溃了，什么神仙操作？？？</p>
+<h3 id="试图绕过">试图绕过</h3>
+<p>排查无果后，DeadLine迫在眉睫；想办法绕过去。</p>
+<p>plan1. 阻止对Map实例的修改，失败❌</p>
+<p>plan2. Map实利被修改后重制原型链，尝试修复；结果<code>Map</code>是可以了，但是下面的<code>Lnglag</code>等子类也被污染了，如果每个子类都要修复原型链也不是个办法；失败❌</p>
+<p>逃坑失败，再次排查</p>
+<h3 id="再度排查">再度排查</h3>
+<p>删除业务中全部逻辑代码，仅保留地图相关的操作。<br>
+错误依旧，挠到头秃.jpg。</p>
+<h3 id="发现问题">发现问题</h3>
+<p>最后突然发现了自己写的DEMO和业务中的不同点，<strong>加载脚本的方式！</strong></p>
+<p>在项目中直接通过script标签引入脚本后问题解决了。</p>
+<p>回过头看之前的代码，resolve 不能中断后续代码的执行 <code>asyncLoadScript</code>脚本会在每一次进入页面都进行加载，是二次加载后导致了这个问题的存在。</p>
+<p>同时也解释了，为什么这个问题出现的时机是那么的不确定，时快时慢。</p>
+<pre><code>    if (window.qq &amp;&amp; !qq.maps.__load &amp;&amp; window.qq.maps) {
+      resolve(lbsQQ)
+    } else {
+      asyncLoadScript(scriptSrc, reject)
+    }
+</code></pre>
+<p>对二次加载进行限制就解决了这个问题，究竟为何二次加载会导致这个问题。恐怕也只有腾讯地图的工程师知道，之后有时间再深究，需求要delay了。</p>
+<p>中秋快乐～</p>
+
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Leon2xiaowu.github.io/post/easy2justify-ui">
+              <h3 class="post-title">
+                小程序增加热更新提高开发过程中UI的调整效率
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Leon2xiaowu.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Leon2xiaowu.github.io</id>
     <title>普通程序员的博客</title>
-    <updated>2019-08-18T06:47:33.071Z</updated>
+    <updated>2019-09-15T01:54:31.137Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Leon2xiaowu.github.io"/>
     <link rel="self" href="https://Leon2xiaowu.github.io/atom.xml"/>
@@ -10,6 +10,89 @@
     <logo>https://Leon2xiaowu.github.io/images/avatar.png</logo>
     <icon>https://Leon2xiaowu.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, 普通程序员的博客</rights>
+    <entry>
+        <title type="html"><![CDATA[业务线高德地图换腾讯地图的解决思路]]></title>
+        <id>https://Leon2xiaowu.github.io/post/AMap-to-lbs-qq</id>
+        <link href="https://Leon2xiaowu.github.io/post/AMap-to-lbs-qq">
+        </link>
+        <updated>2019-09-14T15:32:51.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="背景">背景</h2>
+<p>一个被N多项目组接盘转手的产品已有一套由高德地图实现的业务，领导决定将地图修改为腾讯地图。<br>
+项目业务逻辑较为复杂，代码耦合度很高，相同功能实现没有抽离，之前开发的同事直接CV大法干起来。<br>
+在尽量不去改动业务代码的前提下，对腾讯地图进一步封装，API包装成高德地图的使用方式。</p>
+<h2 id="异步加载">异步加载</h2>
+<p>一方面，减少页面的白屏时间；另一方面也给开发带来了一定的不方便；</p>
+<pre><code class="language-js">function loadQQMapScript() {
+  const key = 'lsb.qq.key'
+  const scriptSrc = `https://map.qq.com/api/js?v=2.exp&amp;key=${key}&amp;callback=init`
+  return new Promise((resolve, reject) =&gt; {
+    if (window.qq &amp;&amp; !qq.maps.__load &amp;&amp; window.qq.maps) resolve(lbsQQ)
+		
+		//  深坑警告⚠️⚠️
+    asyncLoadScript(scriptSrc, reject)
+    
+    window.init = function () {
+      // some callback handle
+    };
+  });
+}
+</code></pre>
+<h2 id="封装">封装</h2>
+<p>异步加载腾讯地图的原因，类的封装也需要在加载完成后执行。意味着对<code>qq.maps.Map</code>等类的继承不能在脚本一运行就执行，需要手动调用后执行。</p>
+<pre><code class="language-js">export function Map(mapContainer, options) {
+  // some adaption handle
+  options.zoomControl = false
+  options.mapTypeControl = false
+
+  class QMap extends qq.maps.Map {
+    constructor(mapContainer, options) {
+      super(mapContainer, options)
+      // some init handle
+    }
+    setFitView(markers) {
+      // Do some adaptation to AMap API
+    }
+  }
+
+  return new QMap(MapContainer, options)
+}
+</code></pre>
+<p>在业务代码中执行<code>new AMap.Map</code> 最后返回的是一个继承于<code>qq.maps.Map</code>的一个类，在自定义的类中能够对两个地图差异部分的内容很方便的做适配。</p>
+<h2 id="蜜汁问题让人头秃">蜜汁问题让人头秃</h2>
+<blockquote>
+<p>Vue 项目中动态引入腾讯地图JS SDK，路由离开并返回后，JS SDK脚本进行二次加载，同时二次加载前 <code>new qq.maps.*</code> 变量均无法正常工作<br>
+PageA -&gt; PageB -&gt; PageA Map对象异常，并且存在一定的时间差和不确定性</p>
+</blockquote>
+<p>项目是由Vue+Vuex+VueRouter 全家桶构成🤦‍♂️，曾一度怀疑是这三个其中一个的锅，具体表现在于 <code>new QMap</code> 出来的对象被Vue响应式处理后出现了异常，无法继续使用。<br>
+控制台出现异常：<br>
+<code>Uncaught Error: Invalid value or type for property &lt;map&gt; ：[object Object]</code></p>
+<h3 id="排查">排查</h3>
+<p>step1. 为了实锤是不是Vue的锅，用全家桶自己写了一个模拟了之后并未出现上述问题（模拟的不严谨，缺乏了一个重要的不同点），即使是在Vue响应式处理后也并不会影响Map的正常调用执行。</p>
+<p>step2. 排查是否封装的类有问题，全部改成直接用<code>qq.map.</code>对象，错误依旧。</p>
+<p>在排除这两个原因后，我要崩溃了，什么神仙操作？？？</p>
+<h3 id="试图绕过">试图绕过</h3>
+<p>排查无果后，DeadLine迫在眉睫；想办法绕过去。</p>
+<p>plan1. 阻止对Map实例的修改，失败❌</p>
+<p>plan2. Map实利被修改后重制原型链，尝试修复；结果<code>Map</code>是可以了，但是下面的<code>Lnglag</code>等子类也被污染了，如果每个子类都要修复原型链也不是个办法；失败❌</p>
+<p>逃坑失败，再次排查</p>
+<h3 id="再度排查">再度排查</h3>
+<p>删除业务中全部逻辑代码，仅保留地图相关的操作。<br>
+错误依旧，挠到头秃.jpg。</p>
+<h3 id="发现问题">发现问题</h3>
+<p>最后突然发现了自己写的DEMO和业务中的不同点，<strong>加载脚本的方式！</strong></p>
+<p>在项目中直接通过script标签引入脚本后问题解决了。</p>
+<p>回过头看之前的代码，resolve 不能中断后续代码的执行 <code>asyncLoadScript</code>脚本会在每一次进入页面都进行加载，是二次加载后导致了这个问题的存在。</p>
+<p>同时也解释了，为什么这个问题出现的时机是那么的不确定，时快时慢。</p>
+<pre><code>    if (window.qq &amp;&amp; !qq.maps.__load &amp;&amp; window.qq.maps) {
+      resolve(lbsQQ)
+    } else {
+      asyncLoadScript(scriptSrc, reject)
+    }
+</code></pre>
+<p>对二次加载进行限制就解决了这个问题，究竟为何二次加载会导致这个问题。恐怕也只有腾讯地图的工程师知道，之后有时间再深究，需求要delay了。</p>
+<p>中秋快乐～</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[小程序增加热更新提高开发过程中UI的调整效率]]></title>
         <id>https://Leon2xiaowu.github.io/post/easy2justify-ui</id>
@@ -750,89 +833,6 @@ const gl = canvas.getContext('webgl');
 </code></pre>
 <p>在了解这些基本概念后，我们就可以着手使用WebGL绘制一些内容啦。</p>
 <p><a href="https://blog.normaldev.app/2018/08/18/WebGL%E5%85%A5%E9%97%A8-2/">To Be Continue ✍️绘制一个点&gt;&gt;&gt;</a></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[PD虚拟机搭建CentOS-7环境]]></title>
-        <id>https://Leon2xiaowu.github.io/post/pd-xu-ni-ji-da-jian-centos-7-huan-jing</id>
-        <link href="https://Leon2xiaowu.github.io/post/pd-xu-ni-ji-da-jian-centos-7-huan-jing">
-        </link>
-        <updated>2018-07-07T01:08:06.000Z</updated>
-        <content type="html"><![CDATA[<p>第一次接触CentOS之类的内容，以前大学时Linux的课也没好好听过（捂脸），搞得一头雾水。<br>
-SSH直接操作VPS延迟挺大的不爽，于是就利用虚拟机创建个环境方便自己学习。</p>
-<h2 id="准备工作">准备工作</h2>
-<ol>
-<li>Parallels Desktop (Windows对应VM或者其他的虚拟机就可以)</li>
-<li><a href="http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso">CentOS-7-x86_64-Minimal镜像</a></li>
-</ol>
-<h2 id="安装系统">安装系统</h2>
-<p>我用的是PD13.3，可能不同版本之间部分细节会有差异。<br>
-安装很简单，新建 =&gt; 选择下载的CentOS =&gt; 勾选快速安装(省事)，这里设置的密码会成为root用户的密码。<br>
-这里的网络方式我选择了<strong>共享网络</strong>，在后续的操作中并没有出现不通的情况。</p>
-<p>然后就是等待重启，并输入用户名root和刚才设置的密码，成功登录就ok。</p>
-<h2 id="ssh访问虚拟机">SSH访问虚拟机</h2>
-<p>在虚拟机里直接操作太麻烦，且用户体验不好，我们使用SSH访问虚拟机并一顿操作。</p>
-<ol>
-<li>
-<p>检查<code>openssh-server</code><br>
-<code>yum list installed | grep openssh-server</code> 检查是否已经安装，如果没有则需要通过yum来安装<br>
-<code>yum install openssh-server</code></p>
-</li>
-<li>
-<p>配置ssh_config<br>
-在<code>/etc/ssh/sshd_config</code>有ssh服务的配置，用vim对其编辑<br>
-<code>vi /etc/ssh/sshd_config</code></p>
-</li>
-</ol>
-<p>对配置做如下更改<br>
-开启端口号<br>
-将Port、ListenAddress、ListenAddress 的注释放开、删除前面的#<br>
-<img src="http://pbh6tbqw4.bkt.clouddn.com/image/open_SSH_Config_1.png" alt="配置修改1"><br>
-接着在不远的后面，将PasswordAuthentication设为ye's，虽然好像本来就是yes，如果有注释也要放开<br>
-<img src="http://pbh6tbqw4.bkt.clouddn.com/image/open_SSH_Config_2.png" alt="配置修改2"></p>
-<ol start="3">
-<li>
-<p>开启sshd<br>
-<code>sudo service sshd start</code>开启服务<br>
-<code>ps -e | grep sshd</code>检查sshd服务开启情况</p>
-</li>
-<li>
-<p>测试是否互通<br>
-CentOS中输入<code>ifconfig</code>查看虚拟机的CentOS具体ip<br>
-没有<code>ifconfig</code>命令可以通过<code>yum install net-tools</code>安装<br>
-<img src="http://pbh6tbqw4.bkt.clouddn.com/image/ifconfig.png" alt="ifconfig"><br>
-虚拟机中通过<code>ping 主机ip</code>测试能否ping通<br>
-反过来主机通过<code>ping 虚拟机ip</code>测试<br>
-均能ping通基本没问题，可以通过SSH访问虚拟机了，如果ping不通请Google一下，我没遇到~</p>
-</li>
-</ol>
-<h2 id="安装nginx">安装Nginx</h2>
-<p>我们通过IUS源来安装各种包<br>
-<code>sudo yum install https://centos7.iuscommunity.org/ius-release.rpm</code></p>
-<p>通过yum 安装 Nginx<code>yum install nginx</code></p>
-<p>开机启动Nginx <code>sudo systemctl start nginx.service</code></p>
-<p>然后发现主机访问不了虚拟机的Nginx服务，但的的确确是通的。<br>
-其实是CentOS的防火墙搞的鬼，我们设置一下。</p>
-<p><code>firewall-cmd --zone=public --add-port=80/tcp --permanent</code></p>
-<p>--zone 表示 作用于<br>
---add-port 为添加端口/协议<br>
---permanent 永久生效，不加的话重启就凉了</p>
-<p>重启防火墙<br>
-<code>systemctl stop firewalld.service</code><br>
-<code>systemctl start firewalld.service</code><br>
-如此一来也就可以愉快的访问虚拟机的Nginx服务了</p>
-<h2 id="安装uwsgi">安装uWSGI</h2>
-<p><code>pip install uwsgi</code></p>
-<p>如果报错的话检查下<code>python3-devel</code>是否有安装<br>
-通过<code>yum -y install python36u-devel</code> 进行安装</p>
-<h3 id="uwsgi放在nginx后遇到的错误">uWSGI放在Nginx后遇到的错误</h3>
-<h4 id="failed-13-permission-denied-while-connecting-to-upstream">failed (13: Permission denied) while connecting to upstream</h4>
-<p>Nginx转发请求本地接口时么有权限导致的</p>
-<p><a href="https://stackoverflow.com/questions/21820444/nginx-error-13-permission-denied-while-connecting-to-upstream">nginx-error-13-permission-denied-while-connecting-to-upstream</a></p>
-<p>除了权限以外还有可能是Selinux<br>
-<code>setsebool -P httpd_can_network_connect 1</code></p>
-<h2 id="参考文章">参考文章</h2>
-<p><a href="https://blog.csdn.net/trackle400/article/details/52755571">虚拟机下CentOS7开启SSH连接</a></p>
 ]]></content>
     </entry>
 </feed>
